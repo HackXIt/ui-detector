@@ -1,3 +1,12 @@
+.vscode/.history
+tmp
+*.pth
+clearml.conf
+lvgl-ui-detector*.json
+dataset
+datasets
+runs
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
