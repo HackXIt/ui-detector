@@ -66,6 +66,7 @@ def prepare_training(env: dict, model_variant: str, dataset_id: str, args: dict,
     from clearml import Task, Dataset
     import os
     print(f"Preparing {model_variant} for dataset: {dataset_id}")
+    env['ID'] = dataset_id
     # Fetch dataset YAML
     env['FILES'][dataset_id] = Dataset.get(dataset_id).list_files("*.yaml")
     print(env['FILES'][dataset_id])
@@ -92,9 +93,13 @@ def prepare_training(env: dict, model_variant: str, dataset_id: str, args: dict,
 def training_task(env: dict, model_variant: str, args: dict):
     from ultralytics import YOLO
     from clearml import Task
+    import os
     task = Task.current_task()
     # Load the YOLOv8 model
     model = YOLO(f'{model_variant}.pt')
+    if not args['data'].startswith(env['DIRS']['target']):
+        print(f"Dataset path mismatch: {args['data']} -> {os.path.join(env['DIRS']['target'], env['FILES'][env['ID']][0])}")
+        args['data'] = os.path.join(env['DIRS']['target'], env['FILES'][env['ID']][0])
     print(f"Training {model_variant} on dataset: {args['data']}")
     # Train the model 
     # If running remotely, the arguments may be overridden by ClearML if they were changed in the UI
