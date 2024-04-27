@@ -27,6 +27,7 @@ def prepare_environment():
         env['DIRS']['root'] = os.path.curdir
     # Configure folders
     env['DIRS']['data'] = os.path.join(env['DIRS']['root'], "datasets")
+    print(f"Environment setup complete:\nroot: {env['DIRS']['root']}\ndata: {env['DIRS']['data']}")
     return env
 
 def query_datasets(env: dict):
@@ -64,9 +65,10 @@ def fix_dataset_path(file: str, replacement_path: str):
 def prepare_training(env: dict, model_variant: str, dataset_id: str, args: dict, project: str = "LVGL UI Detector"):
     from clearml import Task, Dataset
     import os
-    print(f"Training {model_variant} on dataset: {dataset_id}")
+    print(f"Preparing {model_variant} for dataset: {dataset_id}")
     # Fetch dataset YAML
     env['FILES'][dataset_id] = Dataset.get(dataset_id).list_files("*.yaml")
+    print(env['FILES'][dataset_id])
     # Download & modify dataset
     env['DIRS']['target'] = download_dataset(env, dataset_id)
     dataset_file = os.path.join(env['DIRS']['target'], env['FILES'][dataset_id][0])
@@ -82,7 +84,7 @@ def prepare_training(env: dict, model_variant: str, dataset_id: str, args: dict,
     # Log "model_variant" parameter to task
     task.set_parameter("model_variant", model_variant)
     task.set_parameter("dataset", dataset_id)
-    task.set_parameter("General/data", args['data'])
+    # task.set_parameter("General/data", args['data'])
     task.connect_configuration(name="Dataset YAML", configuration=args['data'])
     task.connect_configuration(name="Dataset Content", configuration=dataset_content)
     return task.id
@@ -93,7 +95,7 @@ def training_task(env: dict, model_variant: str, args: dict):
     task = Task.current_task()
     # Load the YOLOv8 model
     model = YOLO(f'{model_variant}.pt')
-
+    print(f"Training {model_variant} on dataset: {args['data']}")
     # Train the model 
     # If running remotely, the arguments may be overridden by ClearML if they were changed in the UI
     try:
