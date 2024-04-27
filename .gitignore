@@ -1,5 +1,6 @@
 .vscode/.history
 tmp
+*.pt
 *.pth
 clearml.conf
 lvgl-ui-detector*.json
