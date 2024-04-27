@@ -18,7 +18,7 @@ def optimize_hyperparameters(template_id:str, run_local:bool = False):
     print("Optimizing hyperparameters")
     task = Task.init(
         project_name='Hyper-Parameter Optimization (UI Detector)',
-        task_name='Automatic Hyper-Parameter Optimization (UI Detector)',
+        task_name='Automatic HPO (UI Detector)',
         task_type=Task.TaskTypes.optimizer,
         reuse_last_task_id=False
     )
@@ -32,10 +32,10 @@ def optimize_hyperparameters(template_id:str, run_local:bool = False):
         hyper_parameters=[
             # Other hyperparameters we want to optimize
             DiscreteParameterRange('General/batch', values=[16,32,64,128,256]),
-            DiscreteParameterRange('General/epochs', values=[25,50,75,100,125,150]),
-            UniformParameterRange('General/lr0', min_value=0.001, max_value=0.1),
-            UniformParameterRange('General/momentum', min_value=0.85, max_value=0.95),
-            UniformParameterRange('General/weight_decay', min_value=0.0001, max_value=0.001),
+            DiscreteParameterRange('General/epochs', values=[50,75,100]),
+            UniformParameterRange('General/lr0', min_value=0.001, max_value=0.1, step_size=0.003),
+            UniformParameterRange('General/momentum', min_value=0.85, max_value=0.95, step_size=0.02),
+            UniformParameterRange('General/weight_decay', min_value=0.0001, max_value=0.001, step_size=0.0002),
             DiscreteParameterRange('General/imgsz', values=[320, 480, 640]),
             DiscreteParameterRange('General/warmup_epochs', values=[1, 3, 5])
         ],
@@ -45,9 +45,9 @@ def optimize_hyperparameters(template_id:str, run_local:bool = False):
         optimizer_class=OptimizerOptuna,
         execution_queue='training',
         pool_period_min=5,
-        max_iteration_per_job=30,
-        total_max_jobs=1,
-        max_number_of_concurrent_tasks=1
+        total_max_jobs=1000,
+        max_number_of_concurrent_tasks=1,
+        max_iteration_per_job=100
     )
     # experiment template to optimize in the hyperparameter optimization
     args = {
@@ -56,16 +56,21 @@ def optimize_hyperparameters(template_id:str, run_local:bool = False):
     }
     args = task.connect(args)
 
-    # report every 12 seconds, this is way too often, but we are testing here J
-    an_optimizer.set_report_period(2)
+    an_optimizer.set_report_period(15)
     # start the optimization process, callback function to be called every time an experiment is completed
     if run_local:
         an_optimizer.start_locally(job_complete_callback=job_complete_callback)
     else:
         an_optimizer.start(job_complete_callback=job_complete_callback)
-    # set the time limit for the optimization process (2 hours)
-    an_optimizer.set_time_limit(in_minutes=2*60)
+    # set the time limit for the optimization process
+    an_optimizer.set_time_limit(in_minutes=6*60)
     an_optimizer.wait()
+    # optimization is completed, print the top performing experiments id
+    top_exp = an_optimizer.get_top_experiments(top_k=5)
+    print([t.id for t in top_exp])
+    # make sure background optimization stopped
+    an_optimizer.stop()
+    print('We are done, good bye!')
 
 if __name__ == "__main__":
     import argparse
