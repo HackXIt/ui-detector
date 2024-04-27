@@ -100,6 +100,7 @@ def training_task(env: dict, model_variant: str, args: dict):
     if not args['data'].startswith(env['DIRS']['target']):
         print(f"Dataset path mismatch: {args['data']} -> {os.path.join(env['DIRS']['target'], env['FILES'][env['ID']][0])}")
         args['data'] = os.path.join(env['DIRS']['target'], env['FILES'][env['ID']][0])
+        task.set_parameter("General/data", args['data'])
     print(f"Training {model_variant} on dataset: {args['data']}")
     # Train the model 
     # If running remotely, the arguments may be overridden by ClearML if they were changed in the UI
