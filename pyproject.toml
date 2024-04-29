@@ -17,6 +17,7 @@ ipykernel = "^6.29.4"
 ultralytics = "^8.1.47"
 optuna = "^3.6.1"
 clearml = "^1.15.1"
+openai = "^1.23.6"
 
 [tool.poetry.group.dev.dependencies]
 clearml-agent = "^1.8.0"
