@@ -1,4 +1,5 @@
 import argparse
+
 required_modules = ['ultralytics', 'clearml']
 
 # Environment Helper functions
@@ -33,7 +34,8 @@ def prepare_environment():
 def query_datasets(env: dict):
     from clearml import Dataset
     print(f"Querying datasets for project: {env['PROJECT_NAME']}")
-    datasets = Dataset.list_datasets(env['PROJECT_NAME'], partial_name="UI Randomizer", tags=[env['PROJECT_TAG']], only_completed=True)
+    # datasets = Dataset.list_datasets(dataset_project=env['PROJECT_NAME'], tags=[env['PROJECT_TAG']], only_completed=True)
+    datasets = Dataset.list_datasets(dataset_project=env['PROJECT_NAME'])
     # Store dataset filenames per dataset
     env['DATASETS'] = {}
     for dataset in datasets:
@@ -117,6 +119,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train a YOLOv8 model on a dataset")
     parser.add_argument("--dataset", type=str, help="Dataset ID to use for training")
     parser.add_argument("--model", type=str, help="Model variant to use for training")
+    parser.add_argument("--epochs", type=int, default=10, help="Number of epochs to train for")
+    parser.add_argument("--imgsz", type=int, default=480, help="Image size for training")
     args = parser.parse_args()
     env = prepare_environment()
     query_datasets(env)
@@ -126,8 +130,8 @@ if __name__ == "__main__":
     # Training inputs (initial short training run to get a task ID for optimization)
     model_variant = args.model
     varargs = dict(
-        epochs=3, 
-        imgsz=480
+        epochs=args.epochs, 
+        imgsz=args.imgsz
     )
     id = prepare_training(env, model_variant, dataset_choice, varargs)
     results = training_task(env, model_variant, varargs)
