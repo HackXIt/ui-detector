@@ -200,10 +200,34 @@ def prepare_environment(output_folder: str, mpy_path: str, mpy_main: str):
     os.makedirs(env['output_folder'], exist_ok=True)
     return env
 
-# Mode helpers (design)
-def generate_designs(design_folder: str):
-    import os, yaml, random, shutil
-    raise NotImplementedError("Design generator not implemented yet")
+# Design Mode helpers (for ChatGPT generation)
+def load_json_file(filepath: str):
+    import json
+    with open(filepath, 'r') as f:
+        return json.load(f)
+def verify_design(design_file: str, schema_file: str) -> bool|tuple[bool, Exception]:
+    from jsonschema import validate
+    from jsonschema.exceptions import ValidationError
+    design = load_json_file(design_file)
+    schema = load_json_file(schema_file)
+    try:
+        validate(instance=design, schema=schema)
+        print(f"Provided design file {design_file} is valid.")
+        return True
+    except ValidationError as e:
+        print(f"Provided design file {design_file} is invalid:\n{e}")
+        return False, e
+
+def generate_designs(env: dict, args: argparse.Namespace):
+    import os
+    from openai import OpenAI
+    from openai.types import ChatModel
+    open_ai = {}
+    if args.model not in ChatModel:
+        print(f"Invalid model name: {args.model}. Valid are:\n{'\n'.join(ChatModel)}")
+        return
+    client = OpenAI() # per-default uses api_key=os.environ['OPENAI_API_KEY']
+    env['OPEN_AI'] = open_ai
 
 # CLI helpers
 class _HelpAction(argparse._HelpAction):
@@ -310,7 +334,7 @@ if __name__ == '__main__':
         elif args.variant == 'remote':
             pass
         elif args.variant == 'gpt':
-            generate_designs(args.design_folder)
+            generate_designs(env, args)
             capture_design(env, args)
     prepare_dataset(env, args)
     if not args.no_dataset:
