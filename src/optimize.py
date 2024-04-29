@@ -1,7 +1,4 @@
 # HPO helpers
-from sympy import hyper
-
-
 def job_complete_callback(
     job_id,                 # type: str
     objective_value,        # type: float
@@ -37,7 +34,7 @@ def optimize_hyperparameters(args: dict):
     ]
     an_optimizer = HyperParameterOptimizer(
         # This is the experiment we want to optimize
-        base_task_id=args.template_id,
+        base_task_id=args.id,
         hyper_parameters=hyper_parameters,
         objective_metric_title='val',
         objective_metric_series='metrics/mAP50-95(B)',
@@ -58,7 +55,7 @@ def optimize_hyperparameters(args: dict):
 
     an_optimizer.set_report_period(5)
     # start the optimization process, callback function to be called every time an experiment is completed
-    if args.local:
+    if hasattr(args, 'local') and args.local:
         an_optimizer.start_locally(job_complete_callback=job_complete_callback)
     else:
         an_optimizer.start(job_complete_callback=job_complete_callback)
