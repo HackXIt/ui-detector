@@ -1,0 +1,1157 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "required": [
+        "ui"
+    ],
+    "properties": {
+        "ui": {
+            "type": "object",
+            "required": [
+                "window",
+                "root"
+            ],
+            "properties": {
+                "window": {
+                    "type": "object",
+                    "required": [
+                        "width",
+                        "height"
+                    ],
+                    "properties": {
+                        "width": {
+                            "type": "integer"
+                        },
+                        "height": {
+                            "type": "integer"
+                        },
+                        "title": {
+                            "type": "string",
+                            "optional": true
+                        }
+                    }
+                },
+                "root": {
+                    "type": "object",
+                    "$ref": "#/definitions/widget"
+                },
+                "styles": {
+                    "type": "object",
+                    "patternProperties": {
+                        "^[a-zA-Z0-9_]+$": {
+                            "$ref": "#/definitions/style"
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            }
+        }
+    },
+    "definitions": {
+        "widget": {
+            "type": "object",
+            "required": [
+                "type",
+                "options"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "options": {
+                    "oneOf": [
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "container"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "$ref": "#/definitions/containerOptions"
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "arc"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "$ref": "#/definitions/arcOptions"
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "bar"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "$ref": "#/definitions/barOptions"
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "button"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "$ref": "#/definitions/buttonOptions"
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "buttonmatrix"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "$ref": "#/definitions/buttonmatrixOptions"
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "calendar"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "$ref": "#/definitions/calendarOptions"
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "canvas"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "not": {
+                                    "$ref": "#/definitions/canvasOptions"
+                                }
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "chart"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "not": {
+                                    "$ref": "#/definitions/chartOptions"
+                                }
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "checkbox"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "$ref": "#/definitions/checkboxOptions"
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "dropdown"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "$ref": "#/definitions/dropdownOptions"
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "image"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "not": {
+                                    "$ref": "#/definitions/imageOptions"
+                                }
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "imagebutton"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "not": {
+                                    "$ref": "#/definitions/imagebuttonOptions"
+                                }
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "keyboard"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "not": {
+                                    "$ref": "#/definitions/keyboardOptions"
+                                }
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "label"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "$ref": "#/definitions/labelOptions"
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "led"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "$ref": "#/definitions/ledOptions"
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "line"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "not": {
+                                    "$ref": "#/definitions/lineOptions"
+                                }
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "list"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "not": {
+                                    "$ref": "#/definitions/listOptions"
+                                }
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "menu"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "not": {
+                                    "$ref": "#/definitions/menuOptions"
+                                }
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "messagebox"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "not": {
+                                    "$ref": "#/definitions/messageboxOptions"
+                                }
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "roller"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "$ref": "#/definitions/rollerOptions"
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "scale"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "$ref": "#/definitions/scaleOptions"
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "slider"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "$ref": "#/definitions/sliderOptions"
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "spangroup"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "not": {
+                                    "$ref": "#/definitions/spangroupOptions"
+                                }
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "spinbox"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "$ref": "#/definitions/spinboxOptions"
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "spinner"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "not": {
+                                    "$ref": "#/definitions/spinnerOptions"
+                                }
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "switch"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "$ref": "#/definitions/switchOptions"
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "table"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "$ref": "#/definitions/tableOptions"
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "tabview"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "not": {
+                                    "$ref": "#/definitions/tabviewOptions"
+                                }
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "textarea"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "$ref": "#/definitions/textareaOptions"
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "tileview"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "not": {
+                                    "$ref": "#/definitions/tileviewOptions"
+                                }
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "window"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "not": {
+                                    "$ref": "#/definitions/windowOptions"
+                                }
+                            }
+                        }
+                    ]
+                },
+                "children": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/widget"
+                    }
+                },
+                "layout_type": {
+                    "type": "string",
+                    "enum": [
+                        "none",
+                        "grid",
+                        "flex"
+                    ]
+                },
+                "style": {
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false
+        },
+        "style": {
+            "type": "object",
+            "properties": {
+                "bg_color": {
+                    "$ref": "#/definitions/colorPattern"
+                },
+                "bg_opa": {
+                    "$ref": "#/definitions/opacity"
+                },
+                "border_color": {
+                    "$ref": "#/definitions/colorPattern"
+                },
+                "border_opa": {
+                    "$ref": "#/definitions/opacity"
+                },
+                "border_width": {
+                    "type": "integer"
+                },
+                "outline_width": {
+                    "type": "integer"
+                },
+                "outline_color": {
+                    "$ref": "#/definitions/colorPattern"
+                },
+                "outline_opa": {
+                    "$ref": "#/definitions/opacity"
+                },
+                "shadow_width": {
+                    "type": "integer"
+                },
+                "shadow_offset_x": {
+                    "type": "integer"
+                },
+                "shadow_offset_y": {
+                    "type": "integer"
+                },
+                "shadow_color": {
+                    "$ref": "#/definitions/colorPattern"
+                },
+                "shadow_opa": {
+                    "$ref": "#/definitions/opacity"
+                },
+                "line_width": {
+                    "type": "integer"
+                },
+                "line_dash_width": {
+                    "type": "integer"
+                },
+                "line_dash_gap": {
+                    "type": "integer"
+                },
+                "line_rounded": {
+                    "type": "boolean"
+                },
+                "line_color": {
+                    "$ref": "#/definitions/colorPattern"
+                },
+                "line_opa": {
+                    "$ref": "#/definitions/opacity"
+                },
+                "arc_width": {
+                    "type": "integer"
+                },
+                "arc_color": {
+                    "$ref": "#/definitions/colorPattern"
+                },
+                "arc_opa": {
+                    "$ref": "#/definitions/opacity"
+                },
+                "arg_rounded": {
+                    "type": "boolean"
+                },
+                "text_color": {
+                    "$ref": "#/definitions/colorPattern"
+                },
+                "text_opa": {
+                    "$ref": "#/definitions/opacity"
+                },
+                "text_letter_space": {
+                    "type": "integer"
+                },
+                "text_line_space": {
+                    "type": "integer"
+                },
+                "opa": {
+                    "$ref": "#/definitions/opacity"
+                },
+                "font": {
+                    "type": "string"
+                },
+                "align": {
+                    "type": "string",
+                    "enum": [
+                        "center",
+                        "top-left",
+                        "top-right",
+                        "top",
+                        "bottom-left",
+                        "bottom-right",
+                        "bottom",
+                        "left",
+                        "right",
+                        "default"
+                    ]
+                },
+                "width": {
+                    "type": [
+                        "integer",
+                        "number"
+                    ]
+                },
+                "height": {
+                    "type": [
+                        "integer",
+                        "number"
+                    ]
+                },
+                "x": {
+                    "type": "integer"
+                },
+                "y": {
+                    "type": "integer"
+                },
+                "min_width": {
+                    "type": "integer"
+                },
+                "min_height": {
+                    "type": "integer"
+                },
+                "max_width": {
+                    "type": "integer"
+                },
+                "max_height": {
+                    "type": "integer"
+                },
+                "length": {
+                    "type": "integer"
+                },
+                "pad_all": {
+                    "type": "integer"
+                },
+                "pad_hor": {
+                    "type": "integer"
+                },
+                "pad_ver": {
+                    "type": "integer"
+                },
+                "pad_gap": {
+                    "type": "integer"
+                },
+                "pad_top": {
+                    "type": "integer"
+                },
+                "pad_bottom": {
+                    "type": "integer"
+                },
+                "pad_left": {
+                    "type": "integer"
+                },
+                "pad_right": {
+                    "type": "integer"
+                },
+                "pad_row": {
+                    "type": "integer"
+                },
+                "pad_column": {
+                    "type": "integer"
+                },
+                "margin_top": {
+                    "type": "integer"
+                },
+                "margin_bottom": {
+                    "type": "integer"
+                },
+                "margin_left": {
+                    "type": "integer"
+                },
+                "margin_right": {
+                    "type": "integer"
+                }
+            },
+            "additionalProperties": false
+        },
+        "containerOptions": {
+            "type": "object",
+            "properties": {
+                "layout_type": {
+                    "type": "string",
+                    "enum": [
+                        "none",
+                        "grid",
+                        "flex"
+                    ]
+                },
+                "layout_options": {
+                    "oneOf": [
+                        {
+                            "if": {
+                                "properties": {
+                                    "layout_type": {
+                                        "const": "grid"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "$ref": "#/definitions/gridOptions"
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "layout_type": {
+                                        "const": "flex"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "$ref": "#/definitions/flexOptions"
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        "gridOptions": {
+            "type": "object",
+            "properties": {
+                "grid_dsc": {
+                    "type": "object",
+                    "properties": {
+                        "col_dsc": {
+                            "type": "array",
+                            "items": {
+                                "type": [
+                                    "string",
+                                    "integer"
+                                ],
+                                "pattern": "^([0-9]*fr|content)$"
+                            }
+                        },
+                        "row_dsc": {
+                            "type": "array",
+                            "items": {
+                                "type": [
+                                    "string",
+                                    "integer"
+                                ],
+                                "pattern": "^([0-9]*fr|content)$"
+                            }
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
+        },
+        "flexOptions": {
+            "type": "object",
+            "properties": {
+                "flow": {
+                    "type": "string",
+                    "enum": [
+                        "row",
+                        "column",
+                        "row_wrap",
+                        "column_wrap",
+                        "row_reverse",
+                        "column_reverse"
+                    ]
+                }
+            },
+            "additionalProperties": false
+        },
+        "arcOptions": {
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/commonRange"
+                },
+                {
+                    "properties": {
+                        "mode": {
+                            "type": "string",
+                            "enum": [
+                                "normal",
+                                "symmetrical",
+                                "reverse"
+                            ]
+                        },
+                        "value": {
+                            "type": "integer"
+                        },
+                        "rotation": {
+                            "type": "integer"
+                        },
+                        "angle_range": {
+                            "type": "integer"
+                        }
+                    }
+                }
+            ],
+            "additionalProperties": false
+        },
+        "barOptions": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/commonRange"
+                },
+                {
+                    "properties": {
+                        "value": {
+                            "type": "integer"
+                        }
+                    }
+                }
+            ],
+            "additionalProperties": false
+        },
+        "buttonOptions": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/commonText"
+                },
+                {
+                    "properties": {
+                        "symbol": {
+                            "type": "string"
+                        }
+                    }
+                }
+            ],
+            "additionalProperties": false
+        },
+        "buttonmatrixOptions": {
+            "properties": {
+                "map": {
+                    "type": "array",
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "additionalProperties": false
+        },
+        "calendarOptions": {
+            "properties": {
+                "current_date": {
+                    "type": "object",
+                    "properties": {
+                        "year": {
+                            "type": "integer"
+                        },
+                        "month": {
+                            "type": "integer"
+                        },
+                        "day": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "showed_date": {
+                    "type": "object",
+                    "properties": {
+                        "year": {
+                            "type": "integer"
+                        },
+                        "month": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "date_highlights": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "year": {
+                                "type": "integer"
+                            },
+                            "month": {
+                                "type": "integer"
+                            },
+                            "day": {
+                                "type": "integer"
+                            }
+                        }
+                    }
+                }
+            },
+            "additionalProperties": false
+        },
+        "canvasOptions": {
+            "type": "object",
+            "additionalProperties": true
+        },
+        "chartOptions": {
+            "type": "object",
+            "additionalProperties": true
+        },
+        "checkboxOptions": {
+            "properties": {
+                "state": {
+                    "$ref": "#/definitions/state"
+                }
+            },
+            "additionalProperties": false
+        },
+        "dropdownOptions": {
+            "properties": {
+                "entries": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "additionalProperties": false
+        },
+        "imageOptions": {
+            "type": "object",
+            "additionalProperties": true
+        },
+        "imagebuttonOptions": {
+            "type": "object",
+            "additionalProperties": true
+        },
+        "keyboardOptions": {
+            "type": "object",
+            "additionalProperties": true
+        },
+        "labelOptions": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/commonText"
+                }
+            ],
+            "additionalProperties": false
+        },
+        "ledOptions": {
+            "properties": {
+                "brightness": {
+                    "type": "integer"
+                }
+            },
+            "additionalProperties": false
+        },
+        "lineOptions": {
+            "type": "object",
+            "additionalProperties": true
+        },
+        "listOptions": {
+            "type": "object",
+            "additionalProperties": true
+        },
+        "menuOptions": {
+            "type": "object",
+            "additionalProperties": true
+        },
+        "messageboxOptions": {
+            "type": "object",
+            "additionalProperties": true
+        },
+        "rollerOptions": {
+            "properties": {
+                "entries": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "mode": {
+                    "type": "string",
+                    "enum": [
+                        "normal",
+                        "infinite"
+                    ],
+                    "default": "infinite"
+                },
+                "visible_rows": {
+                    "type": "integer",
+                    "default": 3
+                }
+            },
+            "additionalProperties": false
+        },
+        "scaleOptions": {
+            "properties": {
+                "mode": {
+                    "type": "string",
+                    "enum": [
+                        "horizontal_top",
+                        "horizontal_bottom",
+                        "vertical_left",
+                        "vertical_right",
+                        "round_inner",
+                        "round_outer"
+                    ],
+                    "default": "horizontal_bottom"
+                },
+                "show_labels": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "total_ticks": {
+                    "type": "integer",
+                    "default": 10,
+                    "minimum": 1
+                },
+                "major_ticks": {
+                    "type": "integer",
+                    "default": 5,
+                    "minimum": 1
+                },
+                "major_range": {
+                    "type": "integer",
+                    "default": 10,
+                    "minimum": 1
+                },
+                "minor_range": {
+                    "type": "integer",
+                    "default": 1,
+                    "minimum": 1
+                },
+                "sections": {
+                    "type": "integer",
+                    "default": 2,
+                    "minimum": 1
+                },
+                "labels": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "additionalProperties": false
+        },
+        "sliderOptions": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/commonRange"
+                }
+            ],
+            "additionalProperties": false
+        },
+        "spangroupOptions": {
+            "type": "object",
+            "additionalProperties": true
+        },
+        "spinboxOptions": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/commonRange"
+                },
+                {
+                    "properties": {
+                        "step": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 1
+                        },
+                        "value": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "default": 0
+                        }
+                    }
+                }
+            ],
+            "additionalProperties": false
+        },
+        "spinnerOptions": {
+            "type": "object",
+            "additionalProperties": true
+        },
+        "switchOptions": {
+            "properties": {
+                "state": {
+                    "$ref": "#/definitions/state"
+                }
+            },
+            "additionalProperties": false
+        },
+        "tableOptions": {
+            "properties": {
+                "column_count": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "default": 1
+                },
+                "row_count": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "default": 1
+                }
+            },
+            "additionalProperties": false
+        },
+        "tabviewOptions": {
+            "type": "object",
+            "additionalProperties": true
+        },
+        "textareaOptions": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/commonText"
+                }
+            ],
+            "additionalProperties": false
+        },
+        "tileviewOptions": {
+            "type": "object",
+            "additionalProperties": true
+        },
+        "windowOptions": {
+            "type": "object",
+            "additionalProperties": true
+        },
+        "commonText": {
+            "type": "object",
+            "properties": {
+                "text": {
+                    "type": "string"
+                }
+            }
+        },
+        "commonRange": {
+            "type": "object",
+            "properties": {
+                "range_min": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "default": 0
+                },
+                "range_max": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "default": 100
+                }
+            }
+        },
+        "state": {
+            "type": "string",
+            "enum": [
+                "default",
+                "checked",
+                "focused",
+                "focus_key",
+                "edited",
+                "hovered",
+                "pressed",
+                "scrolled",
+                "disabled"
+            ]
+        },
+        "colorPattern": {
+            "type": "string",
+            "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "opacity": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "default": 0
+        }
+    }
+}
