@@ -72,7 +72,7 @@ def optimize_hyperparameters(args: dict):
 if __name__ == "__main__":
     import argparse
     from clearml import Task
-    parser = argparse.ArgumentParser(description="Optimize hyperparameters for a ClearML training task")
+    parser = argparse.ArgumentParser(description="Optimize hyperparameters for a ClearML training task", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--id", type=str, help="Task ID to optimize")
     parser.add_argument("--local", action="store_true", help="Run the optimization locally")
     parser.add_argument("--pool-period", type=int, default=5, help="Pool period in minutes")

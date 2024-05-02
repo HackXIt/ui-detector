@@ -116,7 +116,7 @@ def training_task(env: dict, model_variant: str, args: dict):
 
 if __name__ == "__main__":
     from clearml import Task
-    parser = argparse.ArgumentParser(description="Train a YOLOv8 model on a dataset")
+    parser = argparse.ArgumentParser(description="Train a YOLOv8 model on a dataset", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--dataset", type=str, help="Dataset ID to use for training")
     parser.add_argument("--model", type=str, help="Model variant to use for training")
     parser.add_argument("--epochs", type=int, default=10, help="Number of epochs to train for")

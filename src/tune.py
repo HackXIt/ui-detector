@@ -16,7 +16,7 @@ if __name__ == "__main__":
     # args: model: str, data: str, epochs: int, iterations: int, optimizer: str
     from ultralytics import YOLO
     import argparse
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description='Tune dataset hyperparameters for a YOLO model', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--model', type=str, required=True, help=f'Model name (from: {', '.join(YOLO.available_models())})')
     parser.add_argument('--data', type=str, required=True, help='Dataset YAML file')
     parser.add_argument('--epochs', type=int, default=30, help='Number of epochs to train')

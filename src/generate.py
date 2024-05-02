@@ -250,7 +250,7 @@ class _HelpAction(argparse._HelpAction):
         parser.exit()
 
 def cli_parser():
-    parser = argparse.ArgumentParser(description='Generate UI Detector dataset', add_help=False)
+    parser = argparse.ArgumentParser(description='Generate UI Detector dataset', add_help=False, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-h', '--help', action=_HelpAction, help='show this help message and exit') # add custom help
     parser.add_argument('-o', '--output', type=str, default='output', help='Output folder')
     parser.add_argument('--mpy-path', type=str, default='', help='Path to MicroPython binary')
@@ -274,7 +274,12 @@ def cli_parser():
     design_gpt = design_variant.add_parser('gpt', help='Generate UIs using ChatGPT API')
     design_gpt.add_argument('--api-key', type=str, required=True, help='ChatGPT API key')
     design_gpt.add_argument('--model', type=str, required=True, help='ChatGPT model name')
-    design_gpt.add_argument('--temperature', type=float, default=0.7, help='ChatGPT sampling temperature')
+    design_gpt.add_argument('--max-tokens', type=int, default=255, help=f'ChatGPT maximum tokens') # TODO Check what would be sensible amount of default tokens
+    design_gpt.add_argument('--designs', type=int, default=10, help='Number of designs to generate')
+    design_gpt.add_argument('-o', '--output-folder', type=str, default='tmp', help='Output folder for generated designs')
+    gpt_arg = design_gpt.add_mutually_exclusive_group()
+    gpt_arg.add_argument('--temperature', type=float, default=0.7, help='ChatGPT sampling temperature')
+    gpt_arg.add_argument('--top-p', type=float, default=1.0, help='ChatGPT top-p sampling')
     # TODO Add more arguments for ChatGPT design generator
     return parser
 
