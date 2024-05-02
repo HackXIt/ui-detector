@@ -280,7 +280,6 @@ def cli_parser():
     gpt_arg = design_gpt.add_mutually_exclusive_group()
     gpt_arg.add_argument('--temperature', type=float, default=0.7, help='ChatGPT sampling temperature')
     gpt_arg.add_argument('--top-p', type=float, default=1.0, help='ChatGPT top-p sampling')
-    # TODO Add more arguments for ChatGPT design generator
     return parser
 
 def validate_cli_args(args: dict):
