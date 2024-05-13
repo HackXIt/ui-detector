@@ -1,14 +1,223 @@
 import argparse
-from importlib.metadata import metadata
-from os import system
-from pyexpat.errors import messages
-from re import split
+from venv import logger
 
+from matplotlib.pylab import f
+
+# Create a list of 100 topics that an embedded user interface could be about.
+topics = [
+    "Smart Home Control Systems",
+    "Wearable Fitness Trackers",
+    "Automotive Dashboard Displays",
+    "Industrial Automation Interfaces",
+    "Agricultural Monitoring Systems",
+    "Medical Device Interfaces",
+    "Drone Control Panels",
+    "Retail Point of Sale Systems",
+    "Smart Watches Interfaces",
+    "Security System Controls",
+    "Marine Navigation Systems",
+    "Building Climate Control Systems",
+    "Home Appliance Controls (e.g., Smart Refrigerators)",
+    "Energy Management Displays",
+    "Portable Music Players",
+    "Electronic Thermostats",
+    "Educational Tablets for Kids",
+    "Emergency Alert Systems",
+    "Water Purification System Controls",
+    "Lighting Control Systems",
+    "Portable Gaming Devices",
+    "Smart Mirror Technologies",
+    "Elevator Control Panels",
+    "Vending Machine Interfaces",
+    "Fitness Equipment Consoles",
+    "Industrial Robot Controllers",
+    "Smart Bed Controls",
+    "Smart Glasses Interfaces",
+    "Pet Tracking Devices",
+    "Baby Monitoring Systems",
+    "Digital Signage",
+    "Ticketing Kiosks",
+    "Virtual Reality Headset Interfaces",
+    "Library Management Kiosks",
+    "Smart Lock Interfaces",
+    "Laboratory Equipment Interfaces",
+    "Smart Pens",
+    "Art Installation Controls",
+    "HVAC Control Systems",
+    "Railroad Monitoring Systems",
+    "Handheld GPS Devices",
+    "Digital Cameras",
+    "Smart Toothbrushes",
+    "Aircraft Cockpit Displays",
+    "Electric Vehicle Charging Stations",
+    "Soil Moisture Sensors",
+    "Smart Jewelry",
+    "Pipeline Monitoring Systems",
+    "Waste Management Systems",
+    "Personal Medical Devices (e.g., Insulin Pumps)",
+    "Public Transportation Displays",
+    "On-board Ship Computers",
+    "Smart Plant Pots",
+    "Industrial Pressure Sensors",
+    "Interactive Museum Exhibits",
+    "Smart Bicycle Systems",
+    "Conference Room Booking Displays",
+    "Augmented Reality Interfaces",
+    "Remote Wilderness Cameras",
+    "Interactive Retail Displays",
+    "Spacecraft Control Interfaces",
+    "Wireless Router Management",
+    "Smart City Infrastructure Interfaces",
+    "Factory Assembly Line Displays",
+    "Car Rental Kiosks",
+    "Airport Check-in Kiosks",
+    "Digital Billboards",
+    "Hospital Room Information Panels",
+    "Power Grid Monitoring Systems",
+    "Oil Rig Monitoring Interfaces",
+    "Smart Suitcases",
+    "Fishing Gear Electronics",
+    "Underwater Exploration Devices",
+    "Digital Menu Boards in Restaurants",
+    "Emergency Vehicle Dashboards",
+    "Voice-Controlled Home Assistants",
+    "Smart Coasters (beverage temperature)",
+    "Bicycle Sharing System Terminals",
+    "Smart Shower Panels",
+    "Mining Equipment Interfaces",
+    "Forest Fire Detection Systems",
+    "Smart Windows",
+    "Interactive Dance Floors",
+    "Smart Ring Interfaces",
+    "Professional Camera Systems",
+    "Home Brewing Systems",
+    "Smart Mailboxes",
+    "Autonomous Farm Equipment",
+    "Wind Turbine Controls",
+    "Smart Blinds and Curtains",
+    "Logistics Tracking Systems",
+    "Parking Garage Equipment",
+    "Smart Helmet Displays",
+    "Boat Instrumentation Panels",
+    "Interactive Park Equipment",
+    "Livestock Tracking Systems",
+    "Remote Surgery Consoles",
+    "Weather Monitoring Stations",
+    "Smart Gloves",
+    "Electronic Voting Machines"
+]
+
+# Create a list of 100 themes that could be applied to these user interfaces.
+themes = [
+    " Minimalist",
+    "Futuristic",
+    "Retro",
+    "High Contrast",
+    "Dark Mode",
+    "Light Mode",
+    "Nature-inspired",
+    "Nautical",
+    "Neon Glow",
+    "Earthy Tones",
+    "Pastel Colors",
+    "High Tech",
+    "Art Deco",
+    "Steampunk",
+    "Material Design",
+    "Flat Design",
+    "3D Depth",
+    "Monochrome",
+    "Kids-Friendly",
+    "Elderly-Friendly",
+    "Luxury",
+    "Industrial",
+    "Sports",
+    "Educational",
+    "Seasonal (e.g., Winter, Summer)",
+    "Holiday Themes (e.g., Christmas, Halloween)",
+    "Cartoon",
+    "Abstract",
+    "Photorealistic",
+    "Geometric",
+    "Military",
+    "Space Exploration",
+    "Underwater",
+    "Urban",
+    "Rural",
+    "Health Focused",
+    "Accessibility Enhanced",
+    "Cultural (e.g., Japanese, Mexican)",
+    "Cyberpunk",
+    "Virtual Reality",
+    "Augmented Reality",
+    "Transparent Interfaces",
+    "Glass Effect",
+    "Vintage Film",
+    "Comic Book",
+    "Parchment and Ink",
+    "Origami",
+    "Glow in the Dark",
+    "Neon Signs",
+    "Hand-drawn",
+    "Watercolor",
+    "Grunge",
+    "Metallic",
+    "Zen and Tranquility",
+    "Casino",
+    "Outer Space",
+    "Sci-Fi",
+    "Historical Periods (e.g., Victorian, Medieval)",
+    "Typography-Based",
+    "Animal Print",
+    "Floral",
+    "Ocean Waves",
+    "Desert Sands",
+    "Mountainous Terrain",
+    "Tropical Paradise",
+    "Arctic Freeze",
+    "Jungle Theme",
+    "Auto Racing",
+    "Aviation",
+    "Sailing",
+    "Rock and Roll",
+    "Hip Hop",
+    "Classical Music",
+    "Opera",
+    "Ballet",
+    "Theatre",
+    "Film Noir",
+    "Silent Film",
+    "Neon Jungle",
+    "Crystal Clear",
+    "Witchcraft and Wizardry",
+    "Steampunk Mechanisms",
+    "Pop Art",
+    "Renaissance Art",
+    "Graffiti",
+    "Pixel Art",
+    "ASCII Art",
+    "Mosaic",
+    "Lego Style",
+    "Board Game",
+    "Video Game",
+    "Dystopian",
+    "Utopian",
+    "Western",
+    "Eastern",
+    "Minimalist Text",
+    "Bold Color Blocks",
+    "Line Art",
+    "Optical Illusions",
+    "Neon Abstract"
+]
+combinations = [(t, c) for t in themes for c in topics]
+
+# NOTE removed LED cause it sucks and brings problems
 implemented_types = ["arc", 
                      "bar", "button", "buttonmatrix", 
                      "calendar", "checkbox", 
                      "dropdown", 
-                     "label", "led", 
+                     "label",
                      "roller", 
                      "scale", "slider", "spinbox", "switch", 
                      "table", "textarea"]
@@ -77,20 +286,32 @@ def capture_random(env: dict, args: argparse.Namespace):
     env['generated_files'] = generated_files
     env['files'] = files
 
-
 def capture_design(design_folder: str):
     import subprocess, os, shutil
     from clearml import Task
+    print(f"Capturing designs from {design_folder}...")
     task = Task.current_task()
     logger = task.get_logger()
     design_files = [f for f in os.listdir(design_folder) if os.path.isfile(os.path.join(design_folder, f))]
+    if len(design_files) == 0:
+        print(f"No design files found in {design_folder}")
+        return
     files = []
     errors = 0
     for i, design_file in enumerate(design_files):
-        print(f"Running design generator on file {design_file}")
-        gen = subprocess.run([os.path.abspath(env['mpy_path']), os.path.abspath(env['mpy_main']), '-m', 'design', '-o', 'screenshot.jpg', '-f', os.path.abspath(os.path.join(design_folder, design_file)), '--normalize'], cwd=os.path.abspath(os.path.curdir), capture_output=True, text=True)
-        if gen.returncode != 0:
-            print(f"Failed to generate UI from design file {design_file}:\n{gen.stdout}\n{gen.stderr}")
+        attempts = 0
+        success = False
+        # NOTE Retry mechanism due to possible MemoryErrors when dynamically allocating screenshot data (Trust in the OS to clean up the mess)
+        while not success and attempts < 4:
+            print(f"Running design generator on file {design_file}")
+            gen = subprocess.run([os.path.abspath(env['mpy_path']), os.path.abspath(env['mpy_main']), '-m', 'design', '-o', 'screenshot.jpg', '-f', os.path.abspath(os.path.join(design_folder, design_file)), '--normalize'], cwd=os.path.abspath(os.path.curdir), capture_output=True, text=True)
+            if gen.returncode != 0:
+                print(f"Failed to generate UI from design file {design_file}:\n{gen.stdout}\n{gen.stderr}")
+                attempts += 1
+                continue
+            success = True
+        if not success:
+            print(f"Failed to generate UI from design file {design_file} after {attempts} attempts")
             errors += 1
             continue
         tmp_image = os.path.abspath(os.path.join(os.path.abspath(os.path.curdir), "screenshot.jpg"))
@@ -169,7 +390,7 @@ def prepare_dataset(env: dict, args: argparse.Namespace):
     split_ratio = args.split_ratio if args.split_ratio else (0.7, 0.1, 0.2)
     train_files, val_files, test_files = shuffle_split(env['files'], split_ratio)
     # Prepare folders
-    for folder in folders:
+    for folder in folders[1:]: # NOTE Skip first element to not delete the target_dir (might contain extra data/folders)
         if os.path.exists(folder):
             shutil.rmtree(folder)
         os.makedirs(folder, exist_ok=True)
@@ -203,10 +424,14 @@ def prepare_dataset(env: dict, args: argparse.Namespace):
 def create_dataset(env: dict, args: argparse.Namespace):
     from clearml import Task, Dataset
     task = Task.current_task()
-    if not args.dataset:
-        args.dataset = f"LVGL UI (instances={env['generated_widgets']},files={env['generated_files']})"
+    if args.type == 'random':
+        custom = f"(widgets={env['generated_widgets']},files={env['generated_files']})"
     else:
-        args.dataset = f"{args.dataset} (instances={env['generated_widgets']},files={env['generated_files']})"
+        custom = f"(files={env['generated_files']})"
+    if not args.dataset:
+        args.dataset = f"LVGL UI {custom}"
+    else:
+        args.dataset = f"{args.dataset} {custom}"
     task.rename(f"{args.type.upper()} UI Dataset")
     dataset = Dataset.create(dataset_name=args.dataset, dataset_project="LVGL UI Detector", dataset_tags=["lvgl-ui-detector", args.type], use_current_task=True)
     dataset.add_files(env['dataset_folder'])
@@ -262,6 +487,32 @@ def verify_design_from_string(design: str, schema_file: str) -> tuple[bool, Exce
     except ValidationError as e:
         return False, e
 
+def count_design_widget_types(json_string, first: bool = True):
+    import json
+    # Load the JSON string into a Python dictionary
+    data = json.loads(json_string)
+    # Create a dictionary to count occurrences of each widget type
+    type_count = {}
+    if first:
+        type_count[data['ui']['root']['type']] = 1
+        widgets = data['ui']['root']['children']
+    else:
+        # If this is a recursive call, the 'children' list is directly passed
+        widgets = data
+    # Iterate through each widget and increment its type count in the dictionary
+    for widget in widgets:
+        widget_type = widget['type']
+        if widget_type == 'container':
+            type_count[widget['options']['layout_type']] = type_count.get(widget['options']['layout_type'], 0) + 1
+        type_count[widget_type] = type_count.get(widget_type, 0) + 1
+        if 'children' in widget:
+            # Recursively count the widget types in the children of this widget
+            child_type_count = count_design_widget_types(json.dumps(widget['children']), False)
+            # Merge the child type counts into the main type count dictionary
+            for child_type in child_type_count:
+                type_count[child_type] = type_count.get(child_type, 0) + child_type_count[child_type]
+    # Return the dictionary of widget type counts
+    return type_count
 
 def ask_gpt(openai: dict):
     from openai import OpenAI
@@ -296,17 +547,29 @@ def ask_gpt(openai: dict):
     return response
 
 def ask_gpt_for_design_idea(openai: dict):
+    import random
+    from datetime import datetime
+    random.seed(datetime.now().timestamp())
+    # NOTE Shuffle themes and topics to randomize selection
+    random.shuffle(combinations)
+    theme_topic = random.choice(combinations)
+    # NOTE Remove the used theme and topic to avoid repetition
+    combinations.remove(theme_topic)
+    theme, topic = theme_topic
     system_message = """
 You are a UI designer.
 Your goal is to create a new design idea and guideline for an user interface to be given to developers.
-The user will provide a context constraint and goal for the design.
-You must adhere to the design constraints and goals.
+The user will ask for a new design to be created.
+You will imagine a new user interface and provide a detailed description of the design.
 Make sure to include the following in your design idea:
 - A title for the design
 - The context of the design
-- The design goals or objectives
-- The design elements
+- The visual theme of the design
+- A list of style groups
+- A list of used widgets, including their purpose and style
 - A high-level description of the design
+
+You must adhere to these constraints and rules.
 
 DESIGN RULES:
 In the idea, you will include mentions of design elements that should be present in the form of widgets.
@@ -319,7 +582,6 @@ These are the allowed widget types to be used as design elements and their corre
 - Checkbox: A box that can be checked or unchecked
 - Dropdown: A box containing multiple options as entries where one can be selected
 - Label: A field for text display
-- LED: A circle with custom styling that can be turned on or off like a light
 - Roller: A special dropdown with a rolling interface for selecting entries
 - Scale: A scale for displaying a range of values
 - Slider: A slider for selecting a value within a range
@@ -330,21 +592,89 @@ These are the allowed widget types to be used as design elements and their corre
 - Container: A special widget containing other widgets in a structured layout
 
 Design elements can be structurally combined using the special widget 'container'.
+These special widgets must have an 'id' attribute to be referenced by other widgets.
 The structure of such a container may be defined as a layout of the following types and purposes:
-- none: Widgets are structured using absolute positioning
-- grid: Widgets are structured in rows and columns, each cell containing a widget
-- flex: Widgets are structured in a flexible layout that adjusts to the available space horizontally or vertically
+- none: Widgets are structured using absolute positioning (Widgets placed in the container must be positioned using a specific style group that defines their X and Y coordinates)
+- flex: Widgets are structured in a flexible layout that adjusts to the available space horizontally or vertically (using flex_flow: row, column, row_wrap, column_wrap, row_reverse, column_reverse)
+Widget sizes must avoid overlap with other widgets and can be controlled by setting width and height in a style group.
 
-Design elements can also be styled individually or identical using a style group.
-Style groups define a set of style properties that can be applied to multiple widgets at once.
+Design elements can be styled individually or identically using a style group.
+Style groups define a set of style properties that are applied to the widgets that use them.
 The style properties include color, size, padding, margin, opacity, border, lines, shadows and more.
-Such style groups are named using a unique identifier and may be applied to multiple widgets, but each widget only can have one style group applied.
+The style groups are named using a unique identifier.
+A widget may have multiple styles applied to it, and a style group may be applied to multiple widgets.
+
+ALLOWED STYLE PROPERTIES:
+These properties are applicable to style groups and can be used to define the appearance of widgets.
+- bg_color: Background color of the widget
+- bg_opa: Opacity of the background color of the widget
+- border_color: Color of the border of the widget
+- border_opa: Opacity of the border of the widget
+- border_width: Width of the border of the widget
+- outline_width: Width of the outline of the widget
+- outline_color: Color of the outline of the widget
+- outline_opa: Opacity of the outline of the widget
+- shadow_width: Width of the shadow of the widget
+- shadow_offset_x: Horizontal offset of the shadow of the widget
+- shadow_offset_y: Vertical offset of the shadow of the widget
+- shadow_color: Color of the shadow of the widget
+- shadow_opa: Opacity of the shadow of the widget
+- line_width: Width of the line of the widget
+- line_dash_width: Width of the dashes of the line of the widget
+- line_dash_gap: Gap between the dashes of the line of the widget
+- line_rounded: A boolean representing if the line of the widget is rounded
+- line_color: Color of the line of the widget
+- line_opa: Opacity of the line of the widget
+- arc_width: Width of the arc widget
+- arc_color: Color of the arc widget
+- arc_opa: Opacity of the arc widget
+- arc_rounded: A boolean representing if the arc widget is rounded
+- text_color: Color of the text of the widget
+- text_opa: Opacity of the text of the widget
+- text_letter_space: Letter space of the text of the widget
+- text_line_space: Line space of the text of the widget
+- opa: Opacity of the widget itself
+- align: Alignment of the widget
+- x: X position of the widget
+- y: Y position of the widget
+- min_width: Minimum width of the widget
+- min_height: Minimum height of the widget
+- max_width: Maximum width of the widget
+- max_height: Maximum height of the widget
+- length: Length of the widget
+- pad_all: Padding of the widget on all sides
+- pad_hor: Horizontal padding of the widget
+- pad_ver: Vertical padding of the widget
+- pad_gap: Gap between the padding of the widget
+- pad_top: Top padding of the widget
+- pad_bottom: Bottom padding of the widget
+- pad_left: Left padding of the widget
+- pad_right: Right padding of the widget
+- pad_row: Padding of the widget on the row
+- pad_column: Padding of the widget on the column
+- margin_top: Top margin of the widget
+- margin_bottom: Bottom margin of the widget
+- margin_left: Left margin of the widget
+- margin_right: Right margin of the widget
+
+CONSTRAINT:
+- A design must always be a visually complete representation of a single window, ignoring any possible interactions of the user interface.
+Think of the design as a static image that represents the final appearance of the user interface in a single frame.
+- The size of the window must be 640 x 640 pixels.
+- Font is not a design element, so you do not need to specify font styles or sizes.
+- The design idea is targeting the LVGL library
 
 TASK:
-It is your task to create a design idea for a user interface that adheres to these design rules.
+It is your task to create a design idea for a user interface that adheres to these design rules and constraints.
+You will be given a random topic and theme to base your design idea on.
+Try to incorporate as many varied widgets as possible in the design.
 """
-    initial_prompt = """
-Create a new UI design in the context of an embedded environment with a single display.
+# NOTE Removed the following constraints to simplify the task
+# """
+# - grid: Widgets are structured in rows and columns, each cell containing a widget
+# """
+    initial_prompt = f"""
+Create a new UI design about '{topic}' in the theme of '{theme}'.
 """
     openai['messages'] = [
         {"role": "system", "content": system_message},
@@ -362,12 +692,40 @@ def ask_gpt_for_design_json(openai: dict, design: dict):
     system_message = """
 You are a UI generator.
 Your goal is to create a new single window UI using a specialized JSON format.
-The format specification is available in the design.schema.json file.
-Follow the design guideline of the user when generating the UI.
-Output a valid JSON object that represents the UI design.
+The format specification is available in the design.schema.json file below.
+Follow the provided design guideline of the user when replicating the design idea using the structure of the JSON format.
+Always output a valid JSON object that represents the UI design.
+
+You ALSO MUST adhere to the following SPECIAL RULES:
+- Never use 'grid' container. Use either 'none' or 'flex' container.
+- Containers must be used to set style for the whole window or the specific group of widgets (such as background color and other general styles).
+- Each widget placed inside a 'none' container must have an associated style defining its X and Y coordinates.
+- Widgets may have multiple styles applied to them
+- Window size MUST be 640 x 640 pixels
+- You MUST make sure that coordinates of widgets do not overlap due to width and height of the widgets
+- You MUST make sure that the widgets are within the window bounds (0, 0, 640, 640)
     """
+# NOTE Restricting the use of grid containers, since they are too complicated to get a good looking result
+# '''
+# You ALSO MUST adhere to the following SPECIAL RULES:
+# - If a widget is under the 'children' property of a container AND the container is of layout_type 'grid', then those children must have the 'placement' property.
+# This also applies to nested containers within the 'children' property of a container.
+# This placement property must adhere to the following schema:
+# "placement": {
+#     "type": "object",
+#     "properties": {
+#         "col_pos": { "type": "integer" },
+#         "col_span": { "type": "integer" },
+#         "row_pos": { "type": "integer" },
+#         "row_span": { "type": "integer" }
+#     },
+#     "required": ["col_pos", "col_span", "row_pos", "row_span"]
+# }
+# - The window size defined under the 'window' object MUST be square. (equal width and height)
+# - Container widgets must have an associated 'style' which defines their HEIGHT and WIDTH.
+# '''
     system_message += f"\ndesign.schema.json:\n{str(openai['schema'])}"
-    initial_prompt = "Create a new UI design from this design idea:\n"
+    initial_prompt = "Create a new user interface for this design idea:\n"
     if len(design['errors']) == 0:
         openai['messages'] = [
             {"role": "system", "content": system_message},
@@ -386,51 +744,80 @@ Output a valid JSON object that represents the UI design.
     # Get response
     response = ask_gpt(openai)
     json_design = response.choices[0].message.content
-    json_file = os.path.join(os.path.curdir, 'tmp', f"design_{design['attempts']}.json")
+    json_file = os.path.join(env['design_folder'], f'attempts', f"design_{design['iteration']}_{design['attempts']}.json")
     with open(json_file, 'w') as f:
         f.write(json_design)
     # Check if response is valid JSON
-    is_valid, error = verify_design_from_file(json_file, schema_file) # NOTE Ignoring the error, could be useful for debugging though
+    is_valid, error = verify_design_from_file(json_file, schema_file)
     return is_valid, json_design, error
 
 def generate_designs(env: dict, args: argparse.Namespace):
-    import os, json
+    import os
+    from clearml import Task
+    import numpy as np
     # TODO should connect stuff to ClearML task
+    task = Task.current_task()
+    task.add_tags([args.variant, args.model])
+    logger = task.get_logger()
     open_ai = {}
-    os.makedirs(args.output_folder, exist_ok=True)
-    env['design_folder'] = args.output_folder
+    env['design_folder'] = os.path.join(args.output_folder, args.type, 'designs')
+    os.makedirs(env['design_folder'], exist_ok=True)
+    os.makedirs(os.path.join(env['design_folder'], 'attempts'), exist_ok=True)
     open_ai['model'] = args.model
     open_ai['max_tokens'] = args.max_tokens
     if hasattr(args, 'temperature'):
         open_ai['temperature'] = args.temperature
     elif hasattr(args, 'top_p'):
         open_ai['top_p'] = args.top_p
+    total_widget_count = {}
+    open_ai['valid_designs'] = 0
     for i in range(args.designs):
         print(f"Generating design {i}...")
         valid_design = False
         design = {}
         design['attempts'] = 0
         design['errors'] = []
+        design['iteration'] = i
         design['idea'] = ask_gpt_for_design_idea(open_ai)
-        print(f"Idea: {design['idea']}")
-        while not valid_design and design['attempts'] < 3: # NOTE Limiting attempts to 5 (limiting costs for now)
+        with open(os.path.join(env['design_folder'], f'attempts', f"design_{i}_idea.md"), 'w') as f:
+            f.write(design['idea'])
+        while not valid_design and design['attempts'] < 3: # NOTE Limiting attempts (to avoid infinite costs for now)
             valid_design, design['json_raw'], error = ask_gpt_for_design_json(open_ai, design)
             if error:
                 design['errors'].append(error)
-                design['attempts'] += 1
                 print(f"JSON generation failed with error.")
-                with open(os.path.join(os.path.curdir, 'tmp', f"design_{i}_error.txt"), 'w+') as f:
+                with open(os.path.join(env['design_folder'], f'attempts', f"design_{i}_errors.txt"), 'a') as f:
+                    f.write(f"\nAttempt {design['attempts']}:\n")
                     f.write(str(error))
+                design['attempts'] += 1
         else:
-            msg_fail = f"Failed to generate valid design after {design['attempts']} attempts"
-            msg_success = f"Generated valid design after {design['attempts']}"
-            print(msg_fail if not valid_design else msg_success)
-        print(f"Design JSON:\n{design['json_raw']}")
-        design['file'] = os.path.join(args.output_folder, f"design_{i}.json")
+            logger.report_scalar(title='GPT Designer', series='errors', value=len(design['errors']), iteration=i+1)
+            if valid_design:
+                print(f"Generated valid design after {design['attempts'] + 1} attempts")
+                open_ai['valid_designs'] += 1
+            else:
+                print(f"Failed to generate valid design after {design['attempts'] + 1} attempts")
+                continue
+        # print(f"Design JSON:\n{design['json_raw']}")
+        design['file'] = os.path.join(env['design_folder'], f"design_{i}.json")
         with open(design['file'], 'w') as f:
-            json.dump(design['json_raw'], f)
+            f.write(design['json_raw'])
+        # Count widget types
+        widget_count = count_design_widget_types(design['json_raw'])
+        logger.report_scalar(title='GPT Designer', series='total_widgets', value=sum(widget_count.values()), iteration=i+1)
+        for widget in widget_count:
+            logger.report_scalar(title='GPT Designer', series=widget, value=widget_count[widget], iteration=i+1)
+            if widget not in total_widget_count:
+                total_widget_count[widget] = widget_count[widget]
+            else:
+                total_widget_count[widget] += widget_count[widget]
         open_ai[f'design_{i}'] = design
     env['OPEN_AI'] = open_ai
+    generated_widgets = sum(total_widget_count.values())
+    generated_designs = open_ai['valid_designs']
+    histogram_values = np.array([[generated_widgets], [generated_designs]] + [[value] for value in total_widget_count.values()])
+    histogram_labels = ['Widgets', 'Designs'] + [key for key in total_widget_count.keys()]
+    logger.report_histogram(title='Generated', series='total', values=histogram_values, labels=histogram_labels, yaxis='Count')
 
 # CLI helpers
 class _HelpAction(argparse._HelpAction):
@@ -455,7 +842,7 @@ class _HelpAction(argparse._HelpAction):
 def cli_parser():
     parser = argparse.ArgumentParser(description='Generate UI Detector dataset', add_help=False, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-h', '--help', action=_HelpAction, help='show this help message and exit') # add custom help
-    parser.add_argument('-o', '--output', type=str, default='tmp/output', help='Output folder')
+    parser.add_argument('-o', '--output-folder', type=str, default='tmp/output', help='Output folder')
     parser.add_argument('--mpy-path', type=str, default='', help='Path to MicroPython binary')
     parser.add_argument('--mpy-main', type=str, default='', help='Path to main.py of micropython script')
     parser.add_argument('-d', '--dataset', type=str, default='', help='Name of the dataset')
@@ -479,7 +866,6 @@ def cli_parser():
     design_gpt.add_argument('--model', type=str, required=True, help='ChatGPT model name')
     design_gpt.add_argument('--max-tokens', type=int, default=2500, help=f'ChatGPT maximum tokens') # TODO Check what would be sensible amount of default tokens
     design_gpt.add_argument('--designs', type=int, default=10, help='Number of designs to generate')
-    design_gpt.add_argument('-o', '--output-folder', type=str, default='tmp', help='Output folder for generated designs')
     gpt_arg = design_gpt.add_mutually_exclusive_group()
     gpt_arg.add_argument('--temperature', type=float, default=0.7, help='ChatGPT sampling temperature')
     gpt_arg.add_argument('--top-p', type=float, default=1.0, help='ChatGPT top-p sampling')
@@ -529,17 +915,20 @@ if __name__ == '__main__':
     args = parser.parse_args()
     prepare_task(args)
     validate_cli_args(args)
-    env = prepare_environment(args.output, args.mpy_path, args.mpy_main)
+    env = prepare_environment(args.output_folder, args.mpy_path, args.mpy_main)
     if args.type == 'random':
         capture_random(env, args)
     elif args.type == 'design':
         if args.variant == 'local':
-            capture_design(env['output_folder'])
+            capture_design(args.design_folder)
         elif args.variant == 'remote':
             pass
         elif args.variant == 'gpt':
-            generate_designs(env, args)
-            capture_design(env['output_folder'])
+            try:
+                generate_designs(env, args)
+            except KeyboardInterrupt as e:
+                print("Aborted design generation.")
+            capture_design(env['design_folder'])
     prepare_dataset(env, args)
     if not args.no_dataset:
         create_dataset(env, args)
