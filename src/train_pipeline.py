@@ -15,6 +15,17 @@ except ImportError as e:
     log.error(f"Failed to import required dependencies: (expected: %s) %s", required_modules, e)
     missing_deps = True
 
+import traceback
+import warnings
+import sys
+
+def warn_with_traceback(message, category, filename, lineno, file=None, line=None):
+    log = file if hasattr(file,'write') else sys.stderr
+    traceback.print_stack(file=log)
+    log.write(warnings.formatwarning(message, category, filename, lineno, line))
+
+warnings.showwarning = warn_with_traceback
+
 class Environment(dict):
     def __init__(self, 
                  project_name: str = "LVGL UI Detector", 
