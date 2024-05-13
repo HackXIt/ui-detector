@@ -263,15 +263,28 @@ def capture_random(env: dict, args: argparse.Namespace):
             errors += 1
             continue
         files.append((gen_image, gen_text))
+        annotation_errors = []
         with open(gen_text, 'r') as f:
             # Each line is in this format: "class x y w h" (Need to grab class)
-            for line in f.readlines():
-                widget = line.split(' ')[0]
+            for i, line in enumerate(f.readlines()):
+                widget, x, y, w, h = line.split(' ')
+                if any([x < 0, y < 0, w < 0, h < 0]) or any([x > 1, y > 1, w > 1, h > 1]):
+                    errors += 1
+                    print(f"Invalid bounding box found on line {i} in annotation file {gen_text} of iteration {iteration}")
+                    annotation_errors.append(i)
+                    continue
                 if widget in widgets:
                     widgets[widget] += 1
                 else:
                     errors += 1
                     print(f"Unknown widget class {widget} found in annotation file of iteration {iteration}")
+            # NOTE Delete invalid annotations in label file
+            f.seek(0)
+            lines = f.readlines()
+            for i in annotation_errors:
+                del lines[i]
+            f.seek(0)
+            f.writelines(lines)
         logger.report_scalar(title='Generator', series='total_widgets', value=sum(widgets.values()), iteration=iteration)
         logger.report_scalar(title='Generator', series='errors', value=errors, iteration=iteration)
         for widget in widgets:
