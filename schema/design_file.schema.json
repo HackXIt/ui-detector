@@ -33,7 +33,10 @@
                 },
                 "root": {
                     "type": "object",
-                    "$ref": "#/definitions/widget"
+                    "$ref": "#/definitions/widget",
+                    "required": [
+                        "style"
+                    ]
                 },
                 "styles": {
                     "type": "object",
@@ -52,7 +55,10 @@
             "type": "object",
             "required": [
                 "type",
-                "options"
+                "options",
+                "id",
+                "width",
+                "height"
             ],
             "properties": {
                 "id": {
@@ -61,8 +67,16 @@
                 "type": {
                     "type": "string"
                 },
+                "width": {
+                    "type": "integer",
+                    "description": "The width of the widget itself"
+                },
+                "height": {
+                    "type": "integer",
+                    "description": "The height of the widget itself"
+                },
                 "options": {
-                    "oneOf": [
+                    "anyOf": [
                         {
                             "if": {
                                 "properties": {
@@ -480,7 +494,33 @@
                     ]
                 },
                 "style": {
-                    "type": "string"
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "placement": {
+                    "type": "object",
+                    "properties": {
+                        "col_pos": {
+                            "type": "integer"
+                        },
+                        "col_span": {
+                            "type": "integer"
+                        },
+                        "row_pos": {
+                            "type": "integer"
+                        },
+                        "row_span": {
+                            "type": "integer"
+                        }
+                    },
+                    "required": [
+                        "col_pos",
+                        "col_span",
+                        "row_pos",
+                        "row_span"
+                    ]
                 }
             },
             "additionalProperties": false
@@ -489,91 +529,116 @@
             "type": "object",
             "properties": {
                 "bg_color": {
-                    "$ref": "#/definitions/colorPattern"
+                    "$ref": "#/definitions/colorPattern",
+                    "description": "The background color of the element"
                 },
                 "bg_opa": {
-                    "$ref": "#/definitions/opacity"
+                    "$ref": "#/definitions/opacity",
+                    "description": "The opacity of the background color of the element"
                 },
                 "border_color": {
-                    "$ref": "#/definitions/colorPattern"
+                    "$ref": "#/definitions/colorPattern",
+                    "description": "The color of the border of the element"
                 },
                 "border_opa": {
-                    "$ref": "#/definitions/opacity"
+                    "$ref": "#/definitions/opacity",
+                    "description": "The opacity of the border of the element"
                 },
                 "border_width": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "The width of the border of the element"
                 },
                 "outline_width": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "The width of the outline of the element"
                 },
                 "outline_color": {
-                    "$ref": "#/definitions/colorPattern"
+                    "$ref": "#/definitions/colorPattern",
+                    "description": "The color of the outline of the element"
                 },
                 "outline_opa": {
-                    "$ref": "#/definitions/opacity"
+                    "$ref": "#/definitions/opacity",
+                    "description": "The opacity of the outline of the element"
                 },
                 "shadow_width": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "The width of the element shadow"
                 },
                 "shadow_offset_x": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "The horizontal offset of the element shadow"
                 },
                 "shadow_offset_y": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "The vertical offset of the element shadow"
                 },
                 "shadow_color": {
-                    "$ref": "#/definitions/colorPattern"
+                    "$ref": "#/definitions/colorPattern",
+                    "description": "The color of the element shadow"
                 },
                 "shadow_opa": {
-                    "$ref": "#/definitions/opacity"
+                    "$ref": "#/definitions/opacity",
+                    "description": "The opacity of the element shadow"
                 },
                 "line_width": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "The width of the line of the element"
                 },
                 "line_dash_width": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "The width of the dashes of the line of the element"
                 },
                 "line_dash_gap": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "The gap between the dashes of the line of the element"
                 },
                 "line_rounded": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "description": "A boolean representing if the line of the element is rounded"
                 },
                 "line_color": {
-                    "$ref": "#/definitions/colorPattern"
+                    "$ref": "#/definitions/colorPattern",
+                    "description": "The color of the line of the element"
                 },
                 "line_opa": {
-                    "$ref": "#/definitions/opacity"
+                    "$ref": "#/definitions/opacity",
+                    "description": "The opacity of the line of the element"
                 },
                 "arc_width": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "The width of the arc widget"
                 },
                 "arc_color": {
-                    "$ref": "#/definitions/colorPattern"
+                    "$ref": "#/definitions/colorPattern",
+                    "description": "The color of the arc widget"
                 },
                 "arc_opa": {
-                    "$ref": "#/definitions/opacity"
+                    "$ref": "#/definitions/opacity",
+                    "description": "The opacity of the arc widget"
                 },
                 "arg_rounded": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "description": "A boolean representing if the arc widget is rounded"
                 },
                 "text_color": {
-                    "$ref": "#/definitions/colorPattern"
+                    "$ref": "#/definitions/colorPattern",
+                    "description": "The color of the text of the element"
                 },
                 "text_opa": {
-                    "$ref": "#/definitions/opacity"
+                    "$ref": "#/definitions/opacity",
+                    "description": "The opacity of the text of the element"
                 },
                 "text_letter_space": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "The letter space of the text of the element"
                 },
                 "text_line_space": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "The line space of the text of the element"
                 },
                 "opa": {
-                    "$ref": "#/definitions/opacity"
-                },
-                "font": {
-                    "type": "string"
+                    "$ref": "#/definitions/opacity",
+                    "description": "The opacity of the element itself"
                 },
                 "align": {
                     "type": "string",
@@ -588,82 +653,91 @@
                         "left",
                         "right",
                         "default"
-                    ]
-                },
-                "width": {
-                    "type": [
-                        "integer",
-                        "number"
-                    ]
-                },
-                "height": {
-                    "type": [
-                        "integer",
-                        "number"
-                    ]
+                    ],
+                    "description": "A string representing the alignment of the element"
                 },
                 "x": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "The x position of the widget"
                 },
                 "y": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "The y position of the widget"
                 },
                 "min_width": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "The minimum width of the widget"
                 },
                 "min_height": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "The minimum height of the widget"
                 },
                 "max_width": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "The maximum width of the widget"
                 },
                 "max_height": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "The maximum height of the widget"
                 },
                 "length": {
                     "type": "integer"
                 },
                 "pad_all": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "The padding of the widget on all sides"
                 },
                 "pad_hor": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "The horizontal padding of the widget"
                 },
                 "pad_ver": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "The vertical padding of the widget"
                 },
                 "pad_gap": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "The gap between the padding of the widget"
                 },
                 "pad_top": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "The top padding of the widget"
                 },
                 "pad_bottom": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "The bottom padding of the widget"
                 },
                 "pad_left": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "The left padding of the widget"
                 },
                 "pad_right": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "The right padding of the widget"
                 },
                 "pad_row": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "The padding of the widget on the row"
                 },
                 "pad_column": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "The padding of the widget on the column"
                 },
                 "margin_top": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "The top margin of the widget"
                 },
                 "margin_bottom": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "The bottom margin of the widget"
                 },
                 "margin_left": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "The left margin of the widget"
                 },
                 "margin_right": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "The right margin of the widget"
                 }
             },
             "additionalProperties": false
@@ -781,7 +855,12 @@
                             "type": "integer"
                         },
                         "angle_range": {
-                            "type": "integer"
+                            "type": "array",
+                            "minItems": 2,
+                            "maxItems": 2,
+                            "items": {
+                                "type": "integer"
+                            }
                         }
                     }
                 }
@@ -827,7 +906,8 @@
                         "items": {
                             "type": "string"
                         }
-                    }
+                    },
+                    "description": "Array of arrays of strings representing the button matrix, where each value is the text of a button"
                 }
             },
             "additionalProperties": false
@@ -846,7 +926,8 @@
                         "day": {
                             "type": "integer"
                         }
-                    }
+                    },
+                    "description": "Object representing the current date of the calendar"
                 },
                 "showed_date": {
                     "type": "object",
@@ -857,7 +938,8 @@
                         "month": {
                             "type": "integer"
                         }
-                    }
+                    },
+                    "description": "Object representing the year and month of the calendar currently displayed"
                 },
                 "date_highlights": {
                     "type": "array",
@@ -874,7 +956,8 @@
                                 "type": "integer"
                             }
                         }
-                    }
+                    },
+                    "description": "Array of objects representing the highlighted dates on the calendar (should be within the same year and month as the showed_date)"
                 }
             },
             "additionalProperties": false
@@ -896,14 +979,11 @@
             "additionalProperties": false
         },
         "dropdownOptions": {
-            "properties": {
-                "entries": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
+            "allOf": [
+                {
+                    "$ref": "#/definitions/commonEntries"
                 }
-            },
+            ],
             "additionalProperties": false
         },
         "imageOptions": {
@@ -951,26 +1031,27 @@
             "additionalProperties": true
         },
         "rollerOptions": {
-            "properties": {
-                "entries": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
+            "allOf": [
+                {
+                    "$ref": "#/definitions/commonEntries"
+                },
+                {
+                    "properties": {
+                        "mode": {
+                            "type": "string",
+                            "enum": [
+                                "normal",
+                                "infinite"
+                            ],
+                            "default": "infinite"
+                        },
+                        "visible_rows": {
+                            "type": "integer",
+                            "default": 3
+                        }
                     }
-                },
-                "mode": {
-                    "type": "string",
-                    "enum": [
-                        "normal",
-                        "infinite"
-                    ],
-                    "default": "infinite"
-                },
-                "visible_rows": {
-                    "type": "integer",
-                    "default": 3
                 }
-            },
+            ],
             "additionalProperties": false
         },
         "scaleOptions": {
@@ -985,7 +1066,8 @@
                         "round_inner",
                         "round_outer"
                     ],
-                    "default": "horizontal_bottom"
+                    "default": "horizontal_bottom",
+                    "description": "A string representing the display mode of the scale"
                 },
                 "show_labels": {
                     "type": "boolean",
@@ -994,33 +1076,39 @@
                 "total_ticks": {
                     "type": "integer",
                     "default": 10,
-                    "minimum": 1
+                    "minimum": 1,
+                    "description": "An integer representing the total amount of ticks on the scale"
                 },
                 "major_ticks": {
                     "type": "integer",
                     "default": 5,
-                    "minimum": 1
+                    "minimum": 1,
+                    "description": "An integer representing the Nth tick of all ticks that is a major tick"
                 },
                 "major_range": {
                     "type": "integer",
                     "default": 10,
-                    "minimum": 1
+                    "minimum": 1,
+                    "description": "The value of every major tick"
                 },
                 "minor_range": {
                     "type": "integer",
                     "default": 1,
-                    "minimum": 1
+                    "minimum": 1,
+                    "description": "The value of every minor tick"
                 },
                 "sections": {
                     "type": "integer",
                     "default": 2,
-                    "minimum": 1
+                    "minimum": 1,
+                    "description": "An integer representing the amount of labeled sections on the scale"
                 },
                 "labels": {
                     "type": "array",
                     "items": {
                         "type": "string"
-                    }
+                    },
+                    "description": "Array of strings representing the labels of the scale sections"
                 }
             },
             "additionalProperties": false
@@ -1047,12 +1135,14 @@
                         "step": {
                             "type": "integer",
                             "minimum": 1,
-                            "default": 1
+                            "default": 1,
+                            "description": "An integer representing the step of the spinbox"
                         },
                         "value": {
                             "type": "integer",
                             "minimum": 0,
-                            "default": 0
+                            "default": 0,
+                            "description": "An integer representing the current value of the spinbox"
                         }
                     }
                 }
@@ -1082,9 +1172,32 @@
                     "type": "integer",
                     "minimum": 1,
                     "default": 1
+                },
+                "cell_contents": {
+                    "type": "array",
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "description": "Array of arrays of strings representing the contents of cells in the table (starting from the top-left cell)"
+                },
+                "column_widths": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    },
+                    "description": "Array of integers representing the width of each column in pixels"
                 }
             },
-            "additionalProperties": false
+            "additionalProperties": false,
+            "required": [
+                "column_count",
+                "row_count",
+                "column_widths",
+                "cell_contents"
+            ]
         },
         "tabviewOptions": {
             "type": "object",
@@ -1129,6 +1242,17 @@
                 }
             }
         },
+        "commonEntries": {
+            "type": "object",
+            "properties": {
+                "entries": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
         "state": {
             "type": "string",
             "enum": [
@@ -1141,17 +1265,20 @@
                 "pressed",
                 "scrolled",
                 "disabled"
-            ]
+            ],
+            "description": "A string representing the state of an element"
         },
         "colorPattern": {
             "type": "string",
-            "pattern": "^#[0-9a-fA-F]{6}$"
+            "pattern": "^#[0-9a-fA-F]{6}$",
+            "description": "A color in hexadecimal format (#RRGGBB)"
         },
         "opacity": {
             "type": "integer",
             "minimum": 0,
             "maximum": 100,
-            "default": 0
+            "default": 0,
+            "description": "An integer between 0 and 100 representing the opacity of an element in percentage"
         }
     }
 }
