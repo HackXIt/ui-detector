@@ -3,7 +3,7 @@ from venv import logger
 
 from matplotlib.pylab import f
 
-# Create a list of 100 topics that an embedded user interface could be about.
+# Prompted with: Create a list of 100 topics that an embedded user interface could be about.
 topics = [
     "Smart Home Control Systems",
     "Wearable Fitness Trackers",
@@ -107,7 +107,7 @@ topics = [
     "Electronic Voting Machines"
 ]
 
-# Create a list of 100 themes that could be applied to these user interfaces.
+# Prompted with: Create a list of 100 themes that could be applied to these user interfaces.
 themes = [
     " Minimalist",
     "Futuristic",
@@ -264,27 +264,29 @@ def capture_random(env: dict, args: argparse.Namespace):
             continue
         files.append((gen_image, gen_text))
         annotation_errors = []
-        with open(gen_text, 'r') as f:
+        with open(gen_text, 'r+') as f:
             # Each line is in this format: "class x y w h" (Need to grab class)
+            new_lines = []
             for i, line in enumerate(f.readlines()):
                 widget, x, y, w, h = line.split(' ')
-                if any([x < 0, y < 0, w < 0, h < 0]) or any([x > 1, y > 1, w > 1, h > 1]):
+                x, y, w, h = float(x), float(y), float(w), float(h)
+                if any([x < 0.0, y < 0.0, w < 0.0, h < 0.0]) or any([x > 1.0, y > 1.0, w > 1.0, h > 1.0]):
                     errors += 1
-                    print(f"Invalid bounding box found on line {i} in annotation file {gen_text} of iteration {iteration}")
+                    print(f"[Line {i}] Invalid bounding box found in annotation file {gen_text} of iteration {iteration}")
+                    print(f"Removed: {widget} {x} {y} {w} {h}")
                     annotation_errors.append(i)
                     continue
+                new_lines.append(line)
                 if widget in widgets:
                     widgets[widget] += 1
                 else:
                     errors += 1
-                    print(f"Unknown widget class {widget} found in annotation file of iteration {iteration}")
+                    print(f"[Line {i}] Unknown widget class {widget} found in annotation file of iteration {iteration}")
             # NOTE Delete invalid annotations in label file
             f.seek(0)
-            lines = f.readlines()
-            for i in annotation_errors:
-                del lines[i]
-            f.seek(0)
-            f.writelines(lines)
+            f.writelines(new_lines)
+            f.truncate()
+            del new_lines
         logger.report_scalar(title='Generator', series='total_widgets', value=sum(widgets.values()), iteration=iteration)
         logger.report_scalar(title='Generator', series='errors', value=errors, iteration=iteration)
         for widget in widgets:
@@ -309,9 +311,17 @@ def capture_design(design_folder: str):
     if len(design_files) == 0:
         print(f"No design files found in {design_folder}")
         return
+    widgets = {}
+    for widget in implemented_types:
+        widgets[widget] = 0
     files = []
     errors = 0
+    logger.report_scalar(title='Generator', series='total_widgets', value=sum(widgets.values()), iteration=0)
+    logger.report_scalar(title='Generator', series='errors', value=errors, iteration=0)
+    for widget in widgets:
+        logger.report_scalar(title='Widget metrics', series=widget, value=widgets[widget], iteration=0)
     for i, design_file in enumerate(design_files):
+        print(f"Iteration: {i+1}/{len(design_files)} - {design_file}")
         attempts = 0
         success = False
         # NOTE Retry mechanism due to possible MemoryErrors when dynamically allocating screenshot data (Trust in the OS to clean up the mess)
@@ -343,7 +353,34 @@ def capture_design(design_folder: str):
             errors += 1
             continue
         files.append((gen_image, gen_text))
-        logger.report_scalar(title='Generator', series='errors', value=errors, iteration=i)
+        annotation_errors = []
+        with open(gen_text, 'r+') as f:
+            # Each line is in this format: "class x y w h" (Need to grab class)
+            new_lines = []
+            for i, line in enumerate(f.readlines()):
+                widget, x, y, w, h = line.split(' ')
+                x, y, w, h = float(x), float(y), float(w), float(h)
+                if any([x < 0.0, y < 0.0, w < 0.0, h < 0.0]) or any([x > 1.0, y > 1.0, w > 1.0, h > 1.0]):
+                    errors += 1
+                    print(f"[Line {i}] Invalid bounding box found in annotation file of {design_file}")
+                    print(f"Removed: {widget} {x} {y} {w} {h}")
+                    annotation_errors.append(i)
+                    continue
+                new_lines.append(line)
+                if widget in widgets:
+                    widgets[widget] += 1
+                else:
+                    errors += 1
+                    print(f"[Line {i}] Unknown widget class {widget} found in annotation file of {design_file}")
+            # NOTE Delete invalid annotations in label file
+            f.seek(0)
+            f.writelines(new_lines)
+            f.truncate()
+            del new_lines
+        logger.report_scalar(title='Generator', series='total_widgets', value=sum(widgets.values()), iteration=i+1)
+        logger.report_scalar(title='Generator', series='errors', value=errors, iteration=i+1)
+        for widget in widgets:
+            logger.report_scalar(title='Widget metrics', series=widget, value=widgets[widget], iteration=i+1)
     generated_files = len(files)
     env['generated_files'] = generated_files
     env['files'] = files
@@ -446,7 +483,7 @@ def create_dataset(env: dict, args: argparse.Namespace):
     else:
         args.dataset = f"{args.dataset} {custom}"
     task.rename(f"{args.type.upper()} UI Dataset")
-    dataset = Dataset.create(dataset_name=args.dataset, dataset_project="LVGL UI Detector", dataset_tags=["lvgl-ui-detector", args.type], use_current_task=True)
+    dataset = Dataset.create(dataset_name=args.dataset, dataset_project="LVGL UI Detector", use_current_task=True)
     dataset.add_files(env['dataset_folder'])
     dataset.upload()
     comment = f"Dataset '{args.dataset}' created: {dataset.id}"
@@ -458,7 +495,10 @@ def create_dataset(env: dict, args: argparse.Namespace):
 # Environment helpers
 def prepare_task(args: dict):
     from clearml import Task
-    task = Task.init(project_name='LVGL UI Detector', task_name=f'UI Generator', task_type=Task.TaskTypes.data_processing)
+    tags = ["lvgl-ui-detector", args.type]
+    if args.type == 'design':
+        tags.append(args.variant)
+    task = Task.init(project_name='LVGL UI Detector', task_name=f'UI Generator', task_type=Task.TaskTypes.data_processing, tags=tags)
     task.connect(args)
 
 def prepare_environment(output_folder: str, mpy_path: str, mpy_main: str):
@@ -856,9 +896,9 @@ def cli_parser():
     parser = argparse.ArgumentParser(description='Generate UI Detector dataset', add_help=False, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-h', '--help', action=_HelpAction, help='show this help message and exit') # add custom help
     parser.add_argument('-o', '--output-folder', type=str, default='tmp/output', help='Output folder')
-    parser.add_argument('--mpy-path', type=str, default='', help='Path to MicroPython binary')
-    parser.add_argument('--mpy-main', type=str, default='', help='Path to main.py of micropython script')
-    parser.add_argument('-d', '--dataset', type=str, default='', help='Name of the dataset')
+    parser.add_argument('--mpy-path', type=str, default='', help='Path to MicroPython binary (loads from environment MICROPYTHON_BIN if not provided)')
+    parser.add_argument('--mpy-main', type=str, default='', help='Path to main.py of micropython script (loads from environment MICROPYTHON_MAIN if not provided)')
+    parser.add_argument('-d', '--dataset', type=str, default='', help='Custom name of the dataset written in the task comment')
     parser.add_argument('-s', '--split-ratio', type=int, nargs=3, default=None, help='Split ratio for train, val, test')
     parser.add_argument('--no-dataset', action='store_true', help='Do not create a ClearML dataset (artifacts are added to Task)')
     type = parser.add_subparsers(dest='type', help='Type of LVGL UI generator to use')
