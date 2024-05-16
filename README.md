@@ -10,6 +10,12 @@ This project uses [Poetry](https://python-poetry.org/) for managing dependencies
 1. Install `poetry` package manager. See corresponding [documentation](https://python-poetry.org/docs/#installation) for more information.
 2. Run `poetry install` to install the dependencies and prepare the virtual environment.
 
+# Usage
+
+```shell
+poetry run python src/<task>.py <task-arguments>
+```
+
 # Available tasks
 
 The source contains the following tasks:
@@ -209,6 +215,8 @@ options:
 
 <details>
 <summary>Additional statistics in design mode GPT</summary>
+
+The GPT designer reports on the amount of widgets used in a generated design _(per widget class)_ for each iteration.
 
 ![GPT Designer iterations](assets/Statistics_design-mode-gpt.png)
 
@@ -532,6 +540,9 @@ options:
 </details>
 
 # Known issues
+
+- Sometimes the 'Widget metrics' iteration reporting has issues in ordering and as such, the reported scalars might appear incorrect. This occurs, since sometimes a reported value might have been placed in the wrong iteration _(possibly race condition? upload delay?)_ by ClearML and therefor the scalar plot will show a value dropping. This is generally incorrect, since widget count can only increase with each iteration. The issue originates in the reporting mechanism of ClearML and can't be fixed in this source.
+
 
 # License
 
