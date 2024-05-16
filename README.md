@@ -541,7 +541,7 @@ options:
 
 # Known issues
 
-- Sometimes the 'Widget metrics' iteration reporting has issues in ordering and as such, the reported scalars might appear incorrect. This occurs, since sometimes a reported value might have been placed in the wrong iteration _(possibly race condition? upload delay?)_ by ClearML and therefor the scalar plot will show a value dropping. This is generally incorrect, since widget count can only increase with each iteration. The issue originates in the reporting mechanism of ClearML and can't be fixed in this source.
+- Sometimes the 'Widget metrics' iteration reporting has issues in ordering and as such, the reported scalars might appear incorrect. This occurs, since sometimes a reported value might have been placed in the wrong iteration _(possibly race condition? upload delay?)_ by ClearML and therefor the scalar plot will show a value dropping. This is generally incorrect, since widget count can only increase with each iteration. The issue originates in the reporting mechanism of ClearML and can't be fixed in this source. The issue is reported here: [ClearML issue 1265](https://github.com/allegroai/clearml/issues/1265)
 
 
 # License
