@@ -616,7 +616,7 @@
                     "$ref": "#/definitions/opacity",
                     "description": "The opacity of the arc widget"
                 },
-                "arg_rounded": {
+                "arc_rounded": {
                     "type": "boolean",
                     "description": "A boolean representing if the arc widget is rounded"
                 },
