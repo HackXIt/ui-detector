@@ -1,7 +1,4 @@
 import argparse
-from venv import logger
-
-from matplotlib.pylab import f
 
 # Prompted with: Create a list of 100 topics that an embedded user interface could be about.
 topics = [
