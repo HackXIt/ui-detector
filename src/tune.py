@@ -2,6 +2,29 @@ import argparse
 
 required_modules = ['ultralytics', 'clearml']
 
+def prepare_task(args: dict):
+    from clearml import Task
+    from clearml import Dataset
+    dataset = Dataset.get(args.dataset)
+    dataset_id = dataset.id
+    dataset_name = dataset.name
+    dataset_tags = dataset.tags
+    task = Task.init(
+        project_name="LVGL UI Detector", 
+        task_name=f"Tune {args.model} ({dataset_name})", 
+        task_type=Task.TaskTypes.optimizer,
+        tags=['tune', args.model, *dataset_tags])
+    varargs = dict(
+        epochs=args.epochs, 
+        iterations=args.iterations,
+        optimizer=args.optimizer,
+        imgsz=args.imgsz
+    )
+    task.connect_configuration(name="Tune/Args", configuration=varargs, description="Tuning arguments")
+    task.set_parameter("Tune/model_variant", model_variant)
+    task.set_parameter("Tune/dataset", dataset_id)
+    return varargs
+
 # Environment Helper functions
 def prepare_environment():
     import os, sys
@@ -77,41 +100,28 @@ def prepare_tuning(env: dict, model_variant: str, dataset_id: str, args: dict, p
     dataset_file = os.path.join(env['DIRS']['target'], env['FILES'][dataset_id][0])
     dataset_content = fix_dataset_path(dataset_file, env['DIRS']['target'])
     args['data'] = os.path.join(env['DIRS']['target'], env['FILES'][dataset_id][0])
-    # # Create a ClearML Task
-    # task = Task.init(
-    #     project_name="LVGL UI Detector",
-    #     task_name=f"Tune {model_variant} ({env['DATASETS'][dataset_id]['name']})",
-    #     task_type=Task.TaskTypes.optimizer
-    # )
-    # task.connect(args)
-    # # Log "model_variant" parameter to task
-    # task.set_parameter("model_variant", model_variant)
-    # task.set_parameter("dataset", dataset_id)
-    # # task.set_parameter("General/data", args['data'])
-    # task.connect_configuration(name="Dataset YAML", configuration=args['data'])
-    # task.connect_configuration(name="Dataset Content", configuration=dataset_content)
-    # return task.id
 
-def yolo_tune(env: dict, model_variant: str, args: dict):
+def yolo_tune(env: dict, model_variant: str, args: dict, store_task: bool = False):
     from ultralytics import YOLO
     from clearml import Task
     import os
     # Initialize the YOLO model
     model = YOLO(f'{model_variant}.pt')
+    if store_task:
+        task = Task.current_task()
     # task = Task.current_task()
     if not args['data'].startswith(env['DIRS']['target']):
         print(f"Dataset path mismatch: {args['data']} -> {os.path.join(env['DIRS']['target'], env['FILES'][env['ID']][0])}")
         args['data'] = os.path.join(env['DIRS']['target'], env['FILES'][env['ID']][0])
-        # task.set_parameter("General/data", args['data'])
-    # id = task.id
+        if store_task:
+            task.set_parameter("General/data", args['data'])
     try:
         results = model.tune(**args) # Individual results are stored via automatic integration
     except Exception as e:
         raise e
     finally:
-        # task = Task.get_task(task_id=id) # Get task for updating final results
         print(results)
-    return results
+    return results, task.id if store_task else None
 
 
 if __name__ == "__main__":
@@ -124,21 +134,26 @@ if __name__ == "__main__":
     parser.add_argument('--iterations', type=int, default=100, help='Number of iterations to tune for')
     parser.add_argument("--imgsz", type=int, default=640, help="Image size for tuning")
     parser.add_argument('--optimizer', type=str, default='AdamW', help='YOLO Optimizer (from: Adam, AdamW, NAdam, RAdam, RMSProp, SGD, auto)')
+    parser.add_argument('--store_task', action='store_true', default=False, help='Store the tuning process as a ClearML task (individual results will not be stored as seperate tasks)')
     args = parser.parse_args()
+    if args.store_task:
+        print("Storing & running tuning task.")
+        prepare_task(args)
+    else:
+        print("Starting tuner.")
+        varargs = dict(
+            epochs=args.epochs, 
+            iterations=args.iterations,
+            optimizer=args.optimizer,
+            imgsz=args.imgsz
+        )
     env = prepare_environment()
     query_datasets(env)
     if args.dataset not in env['DATASETS'].keys():
         print("Dataset ID not found.")
     dataset_choice = args.dataset
     model_variant = args.model
-    varargs = dict(
-        epochs=args.epochs, 
-        iterations=args.iterations,
-        optimizer=args.optimizer,
-        imgsz=args.imgsz
-    )
-    id = prepare_tuning(env, model_variant, dataset_choice, varargs)
-    results = yolo_tune(env, model_variant, varargs)
-    # print(results)
-    # print(f"Tune task ID: {id}")
+    prepare_tuning(env, model_variant, dataset_choice, varargs)
+    results, id = yolo_tune(env, model_variant, varargs, store_task=args.store_task)
+    print(f"Tune task ID: {id}")
     print("Tuning completed.")
