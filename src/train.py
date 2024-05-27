@@ -4,6 +4,19 @@ required_modules = ['ultralytics', 'clearml']
 
 # Environment Helper functions
 def prepare_environment():
+    """
+    Prepare the environment for training a YOLOv8 model on a dataset.
+    Returns a dictionary with the environment setup.
+    This dictionary contains the following keys:
+    - PROJECT_NAME: The name of the ClearML project (Statically set to "LVGL UI Detector")
+    - PROJECT_TAG: The tag to use for filtering datasets (Statically set to "lvgl-ui-detector")
+    - IN_COLAB: Whether the environment is running in Google Colab
+    - IN_LOCAL_CONTAINER: Whether the environment is running in the custom local agent container
+    - DIRS: A dictionary with all relevant directories for the training process
+    - FILES: A dictionary with all relevant files for the training process
+    - ENV: A dictionary with all environment variables
+    The dictionary will later be expanded with additional keys as needed.
+    """
     import os, sys
     # Set constants for environment
     IN_COLAB = 'google.colab' in sys.modules
@@ -32,6 +45,11 @@ def prepare_environment():
     return env
 
 def query_datasets(env: dict):
+    """
+    Queries the ClearML server for datasets in the project name.
+    Stores the dataset information in the environment dictionary, with the dataset ID as the key.
+    The provided key,value pairs in the dataset information is provided as-is from the Dataset.list_datasets function, further information is available in the ClearML API documentation.
+    """
     from clearml import Dataset
     print(f"Querying datasets for project: {env['PROJECT_NAME']}")
     # datasets = Dataset.list_datasets(dataset_project=env['PROJECT_NAME'], tags=[env['PROJECT_TAG']], only_completed=True)
@@ -43,12 +61,24 @@ def query_datasets(env: dict):
     print(f"Available datasets: {len(datasets)}")
 
 def download_dataset(env: dict, id: str, overwrite: bool = True):
+    """
+    Downloads a dataset from ClearML to the local environment.
+    The dataset is downloaded to the "data" directory of the environment dictionary.
+    The dataset is downloaded as a mutable copy, as this is required for the dataset to be locally available for the training process.
+    No actual modifications are made to the dataset, as the dataset is only used for training purposes.
+    """
     from clearml import Dataset
     print(f"Downloading dataset: {id}")
     dataset = Dataset.get(id)
     return dataset.get_mutable_local_copy(env['DIRS']['data'], overwrite=overwrite)
 
 def fix_dataset_path(file: str, replacement_path: str):
+    """
+    Fixes the dataset path in a dataset YAML file.
+    Since the dataset is downloaded to a different location than the original, the path in the dataset YAML file needs to be adjusted.
+    This function reads the dataset YAML file, adjusts the path to where the dataset was downloaded and writes the adjusted dataset back to the file.
+    The modified contents of the dataset YAML file are returned.
+    """
     import yaml
     print(f"Adjusting dataset path: {file} -> {replacement_path}")
     # Replace path in dataset file to match current environment
@@ -65,6 +95,11 @@ def fix_dataset_path(file: str, replacement_path: str):
 
 # Training helper functions
 def prepare_training(env: dict, model_variant: str, dataset_id: str, args: dict, project: str = "LVGL UI Detector"):
+    """
+    Prepares the traiining environment for the YOLO (ultralytics engine) training process.
+    It downloads the dataset, adjusts the dataset path in the dataset YAML file and creates a ClearML task for the training process.
+    The created task ID is returned for further usage and reference.
+    """
     from clearml import Task, Dataset
     import os
     print(f"Preparing {model_variant} for dataset: {dataset_id}")
@@ -93,6 +128,11 @@ def prepare_training(env: dict, model_variant: str, dataset_id: str, args: dict,
     return task.id
 
 def training_task(env: dict, model_variant: str, args: dict):
+    """
+    Trains a YOLO model using the ultralytics engine, based on the provided arguments and model_variant.
+    Through the ultralytics engine, the training process is automatically logged to the existing ClearML task.
+    The results of the training process are returned, along with the task ID for reference.
+    """
     from ultralytics import YOLO
     from clearml import Task
     import os

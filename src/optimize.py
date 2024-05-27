@@ -11,6 +11,21 @@ def job_complete_callback(
         print(f'New top performing job found!\nJob ID: {job_id}, mAP: {objective_value}, iteration: {objective_iteration}')
 
 def optimize_hyperparameters(args: dict):
+    """
+    Optimize hyperparameters for a ClearML training task.
+    The task ID to optimize is provided in the args dictionary.
+    The optimization process is logged to a new ClearML task.
+    Any individual training tasks created during the optimization process are logged as child tasks.
+    The parameter optimization is performed using the Optuna optimizer.
+    The used hyperparameters and ranges are statically defined:
+    - General/batch: [16, 32, 64, 128, 256]
+    - General/epochs: [50, 75, 100]
+    - General/lr0: [0.001, 0.1] (step size: 0.003)
+    - General/momentum: [0.85, 0.95] (step size: 0.02)
+    - General/weight_decay: [0.0001, 0.001] (step size: 0.0002)
+    - General/imgsz: [320, 480, 640]
+    - General/warmup_epochs: [1, 3, 5]
+    """
     from clearml.automation import UniformParameterRange, DiscreteParameterRange
     from clearml.automation import HyperParameterOptimizer
     from clearml.automation.optuna import OptimizerOptuna
