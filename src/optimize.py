@@ -1,3 +1,34 @@
+"""
+This script is used to optimize hyperparameters for a ClearML training task.
+The task ID to optimize is provided as an argument.
+The optimization process is logged to a new ClearML task.
+Any individual training tasks created during the optimization process are logged as child tasks.
+
+The script may be called according to the following usage information:
+
+    usage: optimize.py [-h] [--id ID] [--local] [--pool-period POOL_PERIOD] [--max-jobs MAX_JOBS] [--max-concurrent MAX_CONCURRENT] [--max-iterations MAX_ITERATIONS]
+                    [--time-limit TIME_LIMIT] [--top-k TOP_K] [--execution-queue EXECUTION_QUEUE]
+
+    Optimize hyperparameters for a ClearML training task
+
+    options:
+    -h, --help            show this help message and exit
+    --id ID               Task ID to optimize (default: None)
+    --local               Run the optimization locally (default: False)
+    --pool-period POOL_PERIOD
+                            Pool period in minutes (default: 5)
+    --max-jobs MAX_JOBS   Maximum number of jobs to run (default: 25)
+    --max-concurrent MAX_CONCURRENT
+                            Maximum number of concurrent tasks (default: 2)
+    --max-iterations MAX_ITERATIONS
+                            Maximum number of iterations per job (default: 100)
+    --time-limit TIME_LIMIT
+                            Time limit for optimization in minutes (default: 120)
+    --top-k TOP_K         Number of top experiments to print (default: 5)
+    --execution-queue EXECUTION_QUEUE
+                            Execution queue for optimization (default: training
+"""
+
 # HPO helpers
 def job_complete_callback(
     job_id,                 # type: str
@@ -6,25 +37,39 @@ def job_complete_callback(
     job_parameters,         # type: dict
     top_performance_job_id  # type: str
 ):
+    """
+    **Params:**
+    - `job_id` The ID of the job that was completed.
+    - `objective_value` The value of the objective metric.
+    - `objective_iteration` The iteration at which the objective metric was achieved.
+    - `job_parameters` The parameters of the job that was completed.
+    - `top_performance_job_id` The ID of the job with the top performance.
+
+    Callback function to be called every time an experiment is completed.
+    """
     print('Job completed!', job_id, objective_value, objective_iteration, job_parameters)
     if job_id == top_performance_job_id:
         print(f'New top performing job found!\nJob ID: {job_id}, mAP: {objective_value}, iteration: {objective_iteration}')
 
 def optimize_hyperparameters(args: dict):
     """
+    **Params:**
+    - `args` Arguments for the optimization process.
+
     Optimize hyperparameters for a ClearML training task.
     The task ID to optimize is provided in the args dictionary.
     The optimization process is logged to a new ClearML task.
     Any individual training tasks created during the optimization process are logged as child tasks.
     The parameter optimization is performed using the Optuna optimizer.
+
     The used hyperparameters and ranges are statically defined:
-    - General/batch: [16, 32, 64, 128, 256]
-    - General/epochs: [50, 75, 100]
-    - General/lr0: [0.001, 0.1] (step size: 0.003)
-    - General/momentum: [0.85, 0.95] (step size: 0.02)
-    - General/weight_decay: [0.0001, 0.001] (step size: 0.0002)
-    - General/imgsz: [320, 480, 640]
-    - General/warmup_epochs: [1, 3, 5]
+    - `General/batch`: `[16, 32, 64, 128, 256]`
+    - `General/epochs`: `[50, 75, 100]`
+    - `General/lr0`: `[0.001, 0.1]` (step size: `0.003`)
+    - `General/momentum`: `[0.85, 0.95]` (step size: `0.02`)
+    - `General/weight_decay`: `[0.0001, 0.001]` (step size: `0.0002`)
+    - `General/imgsz`: `[320, 480, 640]`
+    - `General/warmup_epochs`: `[1, 3, 5]`
     """
     from clearml.automation import UniformParameterRange, DiscreteParameterRange
     from clearml.automation import HyperParameterOptimizer

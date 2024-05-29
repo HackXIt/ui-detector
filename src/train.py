@@ -1,3 +1,21 @@
+"""
+This script is used to train a YOLOv8 model on a dataset.
+The script is designed to be used in a ClearML environment, where the training process is logged to a ClearML task.
+
+The script may be called according to the following usage information:
+
+    usage: train.py [-h] [--dataset DATASET] [--model MODEL] [--epochs EPOCHS] [--imgsz IMGSZ]
+
+    Train a YOLOv8 model on a dataset
+
+    options:
+    -h, --help         show this help message and exit
+    --dataset DATASET  Dataset ID to use for training (default: None)
+    --model MODEL      Model variant to use for training (default: None)
+    --epochs EPOCHS    Number of epochs to train for (default: 10)
+    --imgsz IMGSZ      Image size for training (default: 640)
+"""
+
 import argparse
 
 required_modules = ['ultralytics', 'clearml']
@@ -7,14 +25,16 @@ def prepare_environment():
     """
     Prepare the environment for training a YOLOv8 model on a dataset.
     Returns a dictionary with the environment setup.
+
     This dictionary contains the following keys:
-    - PROJECT_NAME: The name of the ClearML project (Statically set to "LVGL UI Detector")
-    - PROJECT_TAG: The tag to use for filtering datasets (Statically set to "lvgl-ui-detector")
-    - IN_COLAB: Whether the environment is running in Google Colab
-    - IN_LOCAL_CONTAINER: Whether the environment is running in the custom local agent container
-    - DIRS: A dictionary with all relevant directories for the training process
-    - FILES: A dictionary with all relevant files for the training process
-    - ENV: A dictionary with all environment variables
+    - `PROJECT_NAME`: The name of the ClearML project (Statically set to "LVGL UI Detector")
+    - `PROJECT_TAG`: The tag to use for filtering datasets (Statically set to "lvgl-ui-detector")
+    - `IN_COLAB`: Whether the environment is running in Google Colab
+    - `IN_LOCAL_CONTAINER`: Whether the environment is running in the custom local agent container of the author
+    - `DIRS`: A dictionary with all relevant directories for the training process
+    - `FILES`: A dictionary with all relevant files for the training process
+    - `ENV`: A dictionary with all environment variables
+
     The dictionary will later be expanded with additional keys as needed.
     """
     import os, sys
@@ -46,7 +66,11 @@ def prepare_environment():
 
 def query_datasets(env: dict):
     """
+    **Params:**
+    - `env` The environment dictionary with the project name and tag.
+
     Queries the ClearML server for datasets in the project name.
+
     Stores the dataset information in the environment dictionary, with the dataset ID as the key.
     The provided key,value pairs in the dataset information is provided as-is from the Dataset.list_datasets function, further information is available in the ClearML API documentation.
     """
@@ -62,7 +86,16 @@ def query_datasets(env: dict):
 
 def download_dataset(env: dict, id: str, overwrite: bool = True):
     """
+    **Params:**
+    - `env` The environment dictionary with the data directory.
+    - `id` The ID of the dataset to download.
+    - `overwrite` Whether to overwrite the dataset if it already exists. Default is True.
+    
+    **Returns:**
+    - `str` The path to the downloaded dataset.
+
     Downloads a dataset from ClearML to the local environment.
+
     The dataset is downloaded to the "data" directory of the environment dictionary.
     The dataset is downloaded as a mutable copy, as this is required for the dataset to be locally available for the training process.
     No actual modifications are made to the dataset, as the dataset is only used for training purposes.
@@ -74,7 +107,15 @@ def download_dataset(env: dict, id: str, overwrite: bool = True):
 
 def fix_dataset_path(file: str, replacement_path: str):
     """
+    **Params:**
+    - `file` The path to the dataset YAML file.
+    - `replacement_path` The path to replace the dataset path with.
+    
+    **Returns:**
+    - `dict` The modified contents of the dataset YAML file.
+
     Fixes the dataset path in a dataset YAML file.
+
     Since the dataset is downloaded to a different location than the original, the path in the dataset YAML file needs to be adjusted.
     This function reads the dataset YAML file, adjusts the path to where the dataset was downloaded and writes the adjusted dataset back to the file.
     The modified contents of the dataset YAML file are returned.
@@ -96,7 +137,18 @@ def fix_dataset_path(file: str, replacement_path: str):
 # Training helper functions
 def prepare_training(env: dict, model_variant: str, dataset_id: str, args: dict, project: str = "LVGL UI Detector"):
     """
+    **Params:**
+    - `env` The environment dictionary with the dataset information.
+    - `model_variant` The model variant to train.
+    - `dataset_id` The ID of the dataset to use for training.
+    - `args` The arguments to use for training.
+    - `project` The name of the ClearML project to use for training. Default is "LVGL UI Detector".
+    
+    **Returns:**
+    - `str` The ID of the created ClearML task.
+
     Prepares the traiining environment for the YOLO (ultralytics engine) training process.
+
     It downloads the dataset, adjusts the dataset path in the dataset YAML file and creates a ClearML task for the training process.
     The created task ID is returned for further usage and reference.
     """
@@ -129,7 +181,17 @@ def prepare_training(env: dict, model_variant: str, dataset_id: str, args: dict,
 
 def training_task(env: dict, model_variant: str, args: dict):
     """
+    **Params:**
+    - `env` The environment dictionary with the dataset information.
+    - `model_variant` The model variant to train.
+    - `args` The arguments to use for training.
+    
+    **Returns:**
+    - `dict` The results of the training process.
+    - `str` The ID of the ClearML task.
+
     Trains a YOLO model using the ultralytics engine, based on the provided arguments and model_variant.
+
     Through the ultralytics engine, the training process is automatically logged to the existing ClearML task.
     The results of the training process are returned, along with the task ID for reference.
     """

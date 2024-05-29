@@ -1,6 +1,63 @@
+"""
+This script contains the generation process pipelines for the LVGL UI Generator project.
+It depends on version 2 of the generator to work.
+It will call the Micropython generator script to create UIs based on the provided arguments.
+The script will generate a dataset of UIs based on the chosen mode (random or design) and their corresponding arguments.
+
+The script may be called according to the following usage information:
+
+    usage: generate.py [-h] [-o OUTPUT_FOLDER] [--mpy-path MPY_PATH] [--mpy-main MPY_MAIN] [-d DATASET] [-s SPLIT_RATIO SPLIT_RATIO SPLIT_RATIO] [--no-dataset]
+                    {random,design} ...
+
+    Generate UI Detector dataset
+
+    positional arguments:
+    {random,design}       Type of LVGL UI generator to use
+        random              Generate random UI
+        design              Generate UI from design files
+
+    options:
+    -h, --help            show this help message and exit
+    -o OUTPUT_FOLDER, --output-folder OUTPUT_FOLDER
+                            Output folder (default: tmp/output)
+    --mpy-path MPY_PATH   Path to MicroPython binary (loads from environment MICROPYTHON_BIN if not provided) (default: )
+    --mpy-main MPY_MAIN   Path to main.py of micropython script (loads from environment MICROPYTHON_MAIN if not provided) (default: )
+    -d DATASET, --dataset DATASET
+                            Custom name of the dataset written in the task comment (default: )
+    -s SPLIT_RATIO SPLIT_RATIO SPLIT_RATIO, --split-ratio SPLIT_RATIO SPLIT_RATIO SPLIT_RATIO
+                            Split ratio for train, val, test (default: None)
+    --no-dataset          Do not create a ClearML dataset (artifacts are added to Task) (default: False)
+    Subparser 'random'
+    usage: generate.py random [-h] [-W WIDTH] [-H HEIGHT] [-c COUNT] [-l LAYOUT] [-x AMOUNT]
+
+    options:
+    -h, --help            show this help message and exit
+    -W WIDTH, --width WIDTH
+                            Width of the UI screenshot
+    -H HEIGHT, --height HEIGHT
+                            Height of the UI screenshot
+    -c COUNT, --count COUNT
+                            Number of widgets to create per output
+    -l LAYOUT, --layout LAYOUT
+                            The main container layout of the random UI ["grid", "flex", "none"]
+    -x AMOUNT, --amount AMOUNT
+                            Amount of outputs per widget class to create
+
+    Subparser 'design'
+    usage: generate.py design [-h] {local,remote,gpt} ...
+
+    positional arguments:
+    {local,remote,gpt}  Variant of design generator to use
+        local             Generate UIs from local design files
+        remote            Generate UIs from remote design files
+        gpt               Generate UIs using ChatGPT API
+
+    options:
+    -h, --help          show this help message and exit
+"""
+
 import argparse
 
-# Prompted with: Create a list of 100 topics that an embedded user interface could be about.
 topics = [
     "Smart Home Control Systems",
     "Wearable Fitness Trackers",
@@ -103,8 +160,11 @@ topics = [
     "Smart Gloves",
     "Electronic Voting Machines"
 ]
+"""
+100 topics that an embedded user interface could be about.
+It was generated using the GPT model from OpenAI with the prompt "Create a list of 100 topics that an embedded user interface could be about."
+"""
 
-# Prompted with: Create a list of 100 themes that could be applied to these user interfaces.
 themes = [
     " Minimalist",
     "Futuristic",
@@ -207,9 +267,17 @@ themes = [
     "Optical Illusions",
     "Neon Abstract"
 ]
-combinations = [(t, c) for t in themes for c in topics]
+"""
+100 themes that could be applied to user interfaces.
+It was generated using the GPT model from OpenAI with the prompt "Create a list of 100 themes that could be applied to user interfaces."
+"""
 
-# NOTE removed LED cause it sucks and brings problems
+combinations = [(t, c) for t in themes for c in topics]
+"""
+All possible combinations of themes and topics for the LVGL UI Generator.
+With 100 themes and 100 topics, there are 10,000 possible combinations.
+"""
+
 implemented_types = ["arc", 
                      "bar", "button", "buttonmatrix", 
                      "calendar", "checkbox", 
@@ -218,19 +286,29 @@ implemented_types = ["arc",
                      "roller", 
                      "scale", "slider", "spinbox", "switch", 
                      "table", "textarea"]
+"""
+The implemented and used widget types for the LVGL UI Generator.
+"""
 
 # Generators
 def capture_random(env: dict, args: argparse.Namespace):
     """
+    **Params:**
+    - `env` Environment dictionary containing the output folder and Micropython paths
+    - `args` Arguments containing the width, height, count, layout, and amount of widgets to generate
+
     Calls the Micropython generator using random mode to create a user interface.
+
     In each iteration, the generator is provided with a list of widgets, which it will use to create a randomized UI.
     Each generated UI is saved as an JPEG image, with a text file containing the label annotations.
+
     Labels are in the format: "class x y w h" (class is the widget type, x/y are the center coordinates, w/h are the width/height)
     Label values are normalized to the range [0.0, 1.0].
     After each generation, the contained widgets are counted and their total count is accumulated.
     Generation is repeated until the desired threshhold per widget is reached.
     Labels will be post-processed immediatly, removing any invalid annotations (out-of-bounds of the window).
     The generation process is tracked and reported to the ClearML task.
+
     A histogram is created to show the total amount of widgets generated and the amount of files created.
     """
     import subprocess, os, shutil
@@ -312,15 +390,21 @@ def capture_random(env: dict, args: argparse.Namespace):
 
 def capture_design(design_folder: str):
     """
+    **Params:**
+    - `design_folder` Folder containing the design files to generate UIs from
+
     Calls the Micropython generator using design mode to create a user interface.
+
     In each iteration, the generator is called with a design file from the provided folder.
     Each generated UI is saved as an JPEG image, with a text file containing the label annotations.
+
     Labels are in the format: "class x y w h" (class is the widget type, x/y are the center coordinates, w/h are the width/height)
     Label values are normalized to the range [0.0, 1.0].
     After each generation, the contained widgets are counted and their total count is accumulated.
     Generation is repeated until the desired threshhold per widget is reached.
     Labels will be post-processed immediatly, removing any invalid annotations (out-of-bounds of the window).
     The generation process is tracked and reported to the ClearML task.
+
     A histogram is created to show the total amount of widgets generated and the amount of files created.
     """
     import subprocess, os, shutil
@@ -410,7 +494,11 @@ def capture_design(design_folder: str):
 # Dataset helpers
 def replace_class_names(files: list):
     """
+    **Params:**
+    - `files` List of tuples containing the image and annotation file paths
+
     Replaces the class names in the annotation files with a numerical representation.
+
     The number is the index of the class name in the global list of implemented types.
     This is necessary, as the YOLO training process cannot deal with string representations of classes.
     """
@@ -429,6 +517,10 @@ def replace_class_names(files: list):
 
 def shuffle_split(input: list, split_ratio: tuple):
     """
+    **Params:**
+    - `input` List of tuples containing the image and annotation file paths
+    - `split_ratio` Tuple of three values that sum up to 1 (train, val, test)
+
     Shuffles the provided input list and splits it into three parts based on the provided split ratio.
     The split ratio is a tuple of three values that sum up to 1.
     The first value is the ratio of the training set, the second value is the ratio of the validation set, and the third value is the ratio of the test set.
@@ -448,11 +540,17 @@ def shuffle_split(input: list, split_ratio: tuple):
 
 def prepare_dataset(env: dict, args: argparse.Namespace):
     """
+    **Params:**
+    - `env` Environment dictionary containing the output folder and Micropython paths
+    - `args` Arguments containing the type of generator and the split ratio
+
     Prepares and organizes a dataset from the generated files.
-    The dataset is split into three parts based on the provided split ratio, otherwise a default split ratio of (0.7, 0.1, 0.2) is used.
+
+    The dataset is split into three parts based on the provided split ratio, otherwise a default split ratio of `(0.7, 0.1, 0.2)` is used.
     The dataset is organized into a folder structure that is compatible with the YOLO training process.
     Each dataset part (train, val, test) contains an image and a label folder, where the respective files will be moved after the shuffle split.
-    The files will be renamed according to their destination folder and index in their partial list. (e.g. train_0.jpg, train_0.txt, val_0.jpg, val_0.txt, test_0.jpg, test_0.txt)
+    The files will be renamed according to their destination folder and index in their partial list. (e.g. `[(train_0.jpg, train_0.txt), ...]`, `[(val_0.jpg, val_0.txt), ...]`, `[(test_0.jpg, test_0.txt), ...]`)
+
     A dataset YAML file is created that contains the path to the dataset, the folder structure, and the class indexes with their names.
     If the no_dataset flag is set, the dataset will be uploaded as a ZIP archive artifact to the ClearML task.
     Otherwise, another function will take care of dataset creation within ClearML by re-using all task information.
@@ -518,11 +616,17 @@ def prepare_dataset(env: dict, args: argparse.Namespace):
 
 def create_dataset(env: dict, args: argparse.Namespace):
     """
+    **Params:**
+    - `env` Environment dictionary containing the output folder and Micropython paths
+    - `args` Arguments containing the type of generator and the dataset name
+
     Creates a dataset within ClearML from the generated dataset files.
+
     The dataset is created with the provided dataset name and the static project name "LVGL UI Detector".
     The dataset creation re-uses the current task information and uploads the dataset files to ClearML.
     This ensures, that all created files, statistics and metadata are available in the linked task of the dataset.
     The dataset is given a final comment, stating the dataset name and its ID.
+
     After uploading, the dataset is finalized and cannot be modified anymore.
     """
     from clearml import Task, Dataset
@@ -548,7 +652,11 @@ def create_dataset(env: dict, args: argparse.Namespace):
 # Environment helpers
 def prepare_task(args: dict):
     """
+    **Params:**
+    - `args` Dictionary containing the CLI arguments
+
     Prepares a ClearML task, connecting the provided CLI arguments as task parameters.
+
     The task is initialized with the project name "LVGL UI Detector" and the task name "UI Generator".
     The task type is set to "data_processing" and custom tags are set based on the provided arguments (generator type, model-variant, etc.)
     """
@@ -561,6 +669,14 @@ def prepare_task(args: dict):
 
 def prepare_environment(output_folder: str, mpy_path: str, mpy_main: str):
     """
+    **Params:**
+    - `output_folder` Path to the output folder
+    - `mpy_path` Path to the Micropython binary
+    - `mpy_main` Path to the main.py script of the LVGL UI Generator project
+    
+    **Returns:**
+    - `dict` Environment dictionary containing the output folder, Micropython paths, and additional information
+
     Prepares the environment dictionary for the generation process.
     The target output folder is created and the paths to the Micropython generator and main script are stored.
     The environment dictionary is returned for further usage.
@@ -578,6 +694,12 @@ def prepare_environment(output_folder: str, mpy_path: str, mpy_main: str):
 # Design Mode helpers (for ChatGPT generation)
 def load_json_file(filepath: str):
     """
+    **Params:**
+    - `filepath` Path to the JSON file to load
+    
+    **Returns:**
+    - `dict` Python dictionary containing the JSON file content
+
     Loads a JSON file from the provided file path and returns the content as a Python dictionary.
     """
     import json
@@ -586,6 +708,13 @@ def load_json_file(filepath: str):
 
 def verify_design_from_file(design_file: str, schema_file: str) -> tuple[bool, Exception]:
     """
+    **Params:**
+    - `design_file` Path to the design file to verify
+    - `schema_file` Path to the JSON schema file to use for validation
+    
+    **Returns:**
+    - `tuple[bool, Exception]` Tuple containing a boolean value and an exception (if any)
+
     Verifies the design file against the provided JSON schema file.
     The design file is loaded and validated against the schema, using the JSON schema library.
     If the design file is valid, the function returns True and None.
@@ -605,6 +734,13 @@ def verify_design_from_file(design_file: str, schema_file: str) -> tuple[bool, E
 
 def verify_design_from_string(design: str, schema_file: str) -> tuple[bool, Exception]:
     """
+    **Params:**
+    - `design` Design string to verify
+    - `schema_file` Path to the JSON schema file to use for validation
+    
+    **Returns:**
+    - `tuple[bool, Exception]` Tuple containing a boolean value and an exception (if any)
+
     Verifies the provided design string against the provided JSON schema file.
     The design string is loaded and validated against the schema, using the JSON schema library.
     If the design string is valid, the function returns True and None.
@@ -621,7 +757,15 @@ def verify_design_from_string(design: str, schema_file: str) -> tuple[bool, Exce
 
 def count_design_widget_types(json_string, first: bool = True):
     """
+    **Params:**
+    - `json_string` JSON string containing the design to count the widget types from
+    - `first` Flag indicating if this is the first call of the function
+    
+    **Returns:**
+    - `dict` Dictionary containing the widget types and their occurrences
+
     Counts the occurrences of each widget type in the provided JSON string.
+
     The JSON string is loaded and parsed into a Python dictionary.
     The function iterates through each widget and counts the occurrences of each widget type.
     If a widget is a container, the layout type is also counted.
@@ -656,7 +800,14 @@ def count_design_widget_types(json_string, first: bool = True):
 
 def ask_gpt(openai: dict):
     """
+    **Params:**
+    - `openai` Configuration dictionary for the OpenAI GPT API
+    
+    **Returns:**
+    - `dict` Response dictionary from the OpenAI GPT API
+
     Calls the OpenAI GPT API with the provided configuration.
+
     The OpenAI API is used to generate a response based on the provided configuration.
     The response is returned to the caller.
     Used configurations are:
@@ -665,6 +816,7 @@ def ask_gpt(openai: dict):
     - max_tokens: The maximum amount of tokens to generate in the response.
     - format: The format of the response to generate.
     - stop: The stop condition for the response generation. (Optional)
+
     You may either use temperature or top_p for response generation, but not both as it is mutually exclusive.
     This is the recommended pattern by the OpenAI API.
     If neither are provided, the response generation will be done using the default temperature and top_p values, as stated in the OpenAI API documentation.
@@ -702,7 +854,14 @@ def ask_gpt(openai: dict):
 
 def ask_gpt_for_design_idea(openai: dict):
     """
-    Executes the ask_gpt function to generate a design idea, with the static system prompt for proper structure of the design idea output.
+    **Params:**
+    - `openai` Configuration dictionary for the OpenAI GPT API
+    
+    **Returns:**
+    - `dict` Response from the OpenAI GPT API
+
+    Executes the `ask_gpt` function to generate a design idea, with the static system prompt for proper structure of the design idea output.
+
     The OpenAI API is used to generate a response based on the provided configuration.
     A random chosen value from the combinated list of themes and topics is used as user prompt for the design idea.
     A chosen value is then removed from the list to avoid repetition.
@@ -850,7 +1009,15 @@ Create a new UI design about '{topic}' in the theme of '{theme}'.
 
 def ask_gpt_for_design_json(openai: dict, design: dict):
     """
-    Executes the ask_gpt function to generate a JSON design from the provided design idea.
+    **Params:**
+    - `openai` Configuration dictionary for the OpenAI GPT API
+    - `design` Design dictionary containing the design idea and previous validation errors
+    
+    **Returns:**
+    - `tuple[bool, str, Exception]` Tuple containing a boolean value, the generated JSON design and an exception (if any)
+
+    Executes the `ask_gpt` function to generate a JSON design from the provided design idea.
+
     The OpenAI API is used to generate a response based on the provided configuration.
     The design idea is provided as user input to the model for the response generation.
     The system prompt is designed, so that the output JSON will follow special rules and constraints for the LVGL UI generator.
@@ -878,7 +1045,7 @@ You ALSO MUST adhere to the following SPECIAL RULES:
 - You MUST make sure that coordinates of widgets do not overlap due to width and height of the widgets
 - You MUST make sure that the widgets are within the window bounds (0, 0, 640, 640)
     """
-# NOTE Restricting the use of grid containers, since they are too complicated to get a good looking result
+# NOTE Removing the use of grid containers, since they are too complicated to get a good looking result
 # '''
 # You ALSO MUST adhere to the following SPECIAL RULES:
 # - If a widget is under the 'children' property of a container AND the container is of layout_type 'grid', then those children must have the 'placement' property.
@@ -926,17 +1093,26 @@ You ALSO MUST adhere to the following SPECIAL RULES:
 
 def generate_designs(env: dict, args: argparse.Namespace):
     """
+    **Params:**
+    - `env` Environment dictionary containing the output folder and Micropython paths
+    - `args` Arguments containing the design type, model variant, and design count
+
     Generates UI designs based on the provided configuration and arguments.
     The OpenAI API is used to generate design ideas and JSON designs.
-    First, a design idea is generated using the ask_gpt_for_design_idea function.
-    The design idea is saved to a file for reference.
-    Then, a JSON design is generated using the ask_gpt_for_design_json function.
+
+    **First**, a design idea is generated using the `ask_gpt_for_design_idea` function.
+    The LLM is prompted with a randomly chosen combination of the `themes` and `topics`  to generate a design idea.
+    Once chosen, the theme and topic are removed from the `combinations` list to avoid repetition.
+    The design idea is saved to a markdown file for reference in the created `attempts` folder.
+
+    **Then**, a JSON design is generated using the `ask_gpt_for_design_json` function.
     The created JSON design is saved as an attempt file for reference.
     The JSON file is then validated against the design schema to ensure its correctness.
     If it contains errors, the validation error is saved to a file for reference.
     Any validation errors are looped back to another attempt to generate a valid JSON design.
     Any design idea will be attempted to generate a valid JSON design up to 3 times.
     This limit is set to avoid infinite costs incurred through the OpenAI API usage.
+
     The widget types of the generated designs are counted and reported to the ClearML task.
     The total widget count is reported as a histogram, showing the distribution of widget types in the generated designs.
     All valid design files are saved to the output folder for further processing and usage in the dataset generation.
@@ -1067,7 +1243,11 @@ def cli_parser():
 
 def validate_cli_args(args: dict):
     """
+    **Params:**
+    - `args` Dictionary containing the CLI arguments
+
     Validates the provided CLI arguments and environment variables.
+
     The function checks if a micropython path and script were provided. If not, it checks for existance in the environment variables.
     If the paths are not provided or do not exist, the function prints an error message and exits the script.
     Additionally, the function checks for the design folder in case of a local design generator and prints an error if it is not provided.

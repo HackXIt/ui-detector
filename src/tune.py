@@ -1,10 +1,45 @@
+"""
+This script is used to tune hyperparameters for a YOLO model on a ClearML dataset.
+
+The dataset ID to tune is provided as an argument.
+It uses the ultralytics engine to perform the tuning process.
+
+The tuning process is logged to a new ClearML task, if the store_task flag is set to True.
+Individual results will not be stored as separate tasks, if the store_task flag is set to True.
+If the store_task flag is set to False, the individual results are stored as separate ClearML tasks, as per the standard ultralytics engine behavior.
+
+The script may be called according to the following usage information:
+
+    usage: tune.py [-h] [--model MODEL] [--dataset DATASET] [--epochs EPOCHS] [--iterations ITERATIONS] [--imgsz IMGSZ] [--optimizer OPTIMIZER] [--store_task]
+
+    Tune dataset hyperparameters for a YOLO model
+
+    options:
+    -h, --help            show this help message and exit
+    --model MODEL         Model variant to use for tuning (default: None)
+    --dataset DATASET     Dataset ID to use for tuning (default: None)
+    --epochs EPOCHS       Number of epochs to train for (default: 30)
+    --iterations ITERATIONS
+                            Number of iterations to tune for (default: 100)
+    --imgsz IMGSZ         Image size for tuning (default: 640)
+    --optimizer OPTIMIZER
+                            YOLO Optimizer (from: Adam, AdamW, NAdam, RAdam, RMSProp, SGD, auto) (default: AdamW)
+    --store_task          Store the tuning process as a ClearML task (individual results will not be stored as seperate tasks) (default: False)
+"""
 import argparse
 
 required_modules = ['ultralytics', 'clearml']
 
 def prepare_task(args: dict):
     """
+    **Params:**
+    - `args` Arguments for the tuning task.
+    
+    **Returns:**
+    - `dict` The tuning arguments for the task.
+
     Prepare a ClearML task for the YOLO ultralytics engine tuning process.
+
     The task is initialized with the provided arguments and the dataset ID.
     The task is connected to the dataset configuration and the tuning arguments.
     A dictionary of the tuning arguments is returned for further usage.
@@ -34,16 +69,21 @@ def prepare_task(args: dict):
 # Environment Helper functions
 def prepare_environment():
     """
+    **Returns:**
+    - `dict` The environment setup for the training process.
+
     Prepare the environment for training a YOLOv8 model on a dataset.
     Returns a dictionary with the environment setup.
+
     This dictionary contains the following keys:
-    - PROJECT_NAME: The name of the ClearML project (Statically set to "LVGL UI Detector")
-    - PROJECT_TAG: The tag to use for filtering datasets (Statically set to "lvgl-ui-detector")
-    - IN_COLAB: Whether the environment is running in Google Colab
-    - IN_LOCAL_CONTAINER: Whether the environment is running in the custom local agent container
-    - DIRS: A dictionary with all relevant directories for the training process
-    - FILES: A dictionary with all relevant files for the training process
-    - ENV: A dictionary with all environment variables
+    - `PROJECT_NAME`: The name of the ClearML project (Statically set to "LVGL UI Detector")
+    - `PROJECT_TAG`: The tag to use for filtering datasets (Statically set to "lvgl-ui-detector")
+    - `IN_COLAB`: Whether the environment is running in Google Colab
+    - `IN_LOCAL_CONTAINER`: Whether the environment is running in the custom local agent container of the author
+    - `DIRS`: A dictionary with all relevant directories for the training process
+    - `FILES`: A dictionary with all relevant files for the training process
+    - `ENV`: A dictionary with all environment variables
+
     The dictionary will later be expanded with additional keys as needed.
     """
     import os, sys
@@ -75,7 +115,11 @@ def prepare_environment():
 
 def query_datasets(env: dict):
     """
+    **Params:**
+    - `env` The environment dictionary with the project name and tag.
+
     Queries the ClearML server for datasets in the project name.
+
     Stores the dataset information in the environment dictionary, with the dataset ID as the key.
     The provided key,value pairs in the dataset information is provided as-is from the Dataset.list_datasets function, further information is available in the ClearML API documentation.
     """
@@ -91,7 +135,16 @@ def query_datasets(env: dict):
 
 def download_dataset(env: dict, id: str, overwrite: bool = True):
     """
+    **Params:**
+    - `env` The environment dictionary with the data directory.
+    - `id` The ID of the dataset to download.
+    - `overwrite` Whether to overwrite the dataset if it already exists. Default is True.
+
+    **Returns:**
+    - `str` The path to the downloaded dataset.
+
     Downloads a dataset from ClearML to the local environment.
+
     The dataset is downloaded to the "data" directory of the environment dictionary.
     The dataset is downloaded as a mutable copy, as this is required for the dataset to be locally available for the training process.
     No actual modifications are made to the dataset, as the dataset is only used for training purposes.
@@ -103,7 +156,15 @@ def download_dataset(env: dict, id: str, overwrite: bool = True):
 
 def fix_dataset_path(file: str, replacement_path: str):
     """
+    **Params:**
+    - `file` The path to the dataset YAML file.
+    - `replacement_path` The path to replace the dataset path with.
+
+    **Returns:**
+    - `dict` The adjusted dataset YAML content.
+
     Fixes the dataset path in a dataset YAML file.
+
     Since the dataset is downloaded to a different location than the original, the path in the dataset YAML file needs to be adjusted.
     This function reads the dataset YAML file, adjusts the path to where the dataset was downloaded and writes the adjusted dataset back to the file.
     The modified contents of the dataset YAML file are returned.
@@ -125,7 +186,15 @@ def fix_dataset_path(file: str, replacement_path: str):
 # Tuning helper functions
 def prepare_tuning(env: dict, model_variant: str, dataset_id: str, args: dict, project: str = "LVGL UI Detector"):
     """
+    **Params:**
+    - `env` The environment dictionary with the dataset directory.
+    - `model_variant` The model variant to use for tuning.
+    - `dataset_id` The ID of the dataset to use for tuning.
+    - `args` The arguments to use for tuning.
+    - `project` The name of the ClearML project to use for tuning. Default is "LVGL UI Detector".
+
     Prepare the tuning process for a YOLO model on a dataset.
+
     The dataset is downloaded and adjusted to the local environment.
     The tuning arguments are stored in the environment dictionary.
     """
@@ -144,7 +213,18 @@ def prepare_tuning(env: dict, model_variant: str, dataset_id: str, args: dict, p
 
 def yolo_tune(env: dict, model_variant: str, args: dict, store_task: bool = False):
     """
+    **Params:**
+    - `env` The environment dictionary with the dataset information.
+    - `model_variant` The model variant to use for tuning.
+    - `args` The arguments to use for tuning.
+    - `store_task` Whether to store the tuning task in ClearML. Default is False.
+    
+    **Returns:**
+    - `dict` The results of the tuning process.
+    - `str` The ID of the tuning task if stored. Otherwise None.
+
     Perform the tuning process for a YOLO model using the standard process of the ultralytics engine on a downloaded ClearML dataset.
+    
     The tuning process is performed using the provided arguments.
     The task is stored in ClearML if the store_task flag is set to True.
     It is not recommended to store the tuning task, since then the individual results are not stored as separate tasks.
