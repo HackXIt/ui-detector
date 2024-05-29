@@ -23,21 +23,20 @@
 
             <h2>Contents</h2>
             <ul>
-  <li><a href="#lvgl-ui-detector">LVGL UI Detector</a>
+  <li><a href="#lvgl-ui-detector">LVGL UI Detector</a></li>
+  <li><a href="#pre-requisites-installation">Pre-requisites &amp; Installation</a>
   <ul>
-    <li><a href="#project-structure">Project structure</a></li>
-    <li><a href="#dependency-management">Dependency management</a></li>
-    <li><a href="#clearml">ClearML</a></li>
-    <li><a href="#lvgl-ui-generator-version-1">LVGL UI Generator (Version 1)</a></li>
-    <li><a href="#lvgl-ui-generator-version-2">LVGL UI Generator (Version 2)</a></li>
-    <li><a href="#ui-randomizer">UI Randomizer</a></li>
-    <li><a href="#ui-detector">UI Detector</a></li>
-    <li><a href="#docker-image">Docker image</a></li>
-    <li><a href="#vscode-workspace">VSCode workspace</a></li>
+    <li><a href="#setting-up-the-virtual-environment">Setting up the virtual environment</a></li>
   </ul></li>
-  <li><a href="#authors-note">Author's Note</a></li>
-  <li><a href="#milestones">Milestones</a></li>
-  <li><a href="#feature-roadmap">Feature roadmap</a></li>
+  <li><a href="#usage">Usage</a></li>
+  <li><a href="#available-tasks">Available tasks</a>
+  <ul>
+    <li><a href="#generate">Generate</a></li>
+    <li><a href="#train">Train</a></li>
+    <li><a href="#optimize">Optimize</a></li>
+    <li><a href="#tune">Tune</a></li>
+  </ul></li>
+  <li><a href="#known-issues">Known issues</a></li>
   <li><a href="#license">License</a></li>
 </ul>
 
@@ -74,199 +73,579 @@ src    </h1>
 
                         <div class="docstring"><h1 id="lvgl-ui-detector">LVGL UI Detector</h1>
 
-<p>This machine learning project is a user interface widget detector for the <a href="https://lvgl.io/">Light and Versatile Graphics Library (LVGL)</a>. The base is the <a href="https://github.com/ultralytics/ultralytics">YOLOv8 model</a>, trained on synthesized datasets created from the programs/scripts in this repository and corresponding submodules.</p>
+<p>Source code for LVGL UI detector model with ClearML tasks for generating, training and optimization.</p>
 
-<p>The purpose of the model is to detect and locate widgets from a provided screenshot to aid in automated testing procedures requiring this information.</p>
+<p>🗎 <a href="https://hackxit.github.io/ui-detector/">Documentation</a></p>
 
-<p>It was trained specifically for the LVGL framework, with the following widgets implemented in the dataset generator:</p>
+<h1 id="pre-requisites-installation">Pre-requisites &amp; Installation</h1>
 
-<ul>
-<li>Arc</li>
-<li>Bar</li>
-<li>Button</li>
-<li>Buttonmatrix</li>
-<li>Calendar</li>
-<li>Checkbox</li>
-<li>Dropdown</li>
-<li>Label</li>
-<li>Roller</li>
-<li>Scale</li>
-<li>Slider</li>
-<li>Spinbox</li>
-<li>Switch</li>
-<li>Table</li>
-<li>Textarea</li>
-<li>...(more to come in the future)</li>
-</ul>
+<p>This project uses <a href="https://python-poetry.org/">Poetry</a> for managing dependencies.</p>
 
-<p>This repository serves as the main entry point for the project and contains the main documentation as well as the project structure.
-It also features a docker image for development purposes to work inside Jupyter notebook.
-It additionally contains a few scripts for the container and also for inspecting or uploading datasets manually. </p>
+<h2 id="setting-up-the-virtual-environment">Setting up the virtual environment</h2>
 
-<p>The image and scripts are <strong>for my personal use</strong> and will be deprecated in the future.</p>
+<ol>
+<li>Install <code>poetry</code> package manager. See corresponding <a href="https://python-poetry.org/docs/#installation">documentation</a> for more information.</li>
+<li>Run <code>poetry install</code> to install the dependencies and prepare the virtual environment.</li>
+</ol>
 
-<h2 id="project-structure">Project structure</h2>
+<h1 id="usage">Usage</h1>
 
-<p>The project is divided into several submodules, each serving a specific purpose:</p>
+<div class="pdoc-code codehilite">
+<pre><span></span><code>poetry<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>src/&lt;task&gt;.py<span class="w"> </span>&lt;task-arguments&gt;
+</code></pre>
+</div>
+
+<h1 id="available-tasks">Available tasks</h1>
+
+<p>The source contains the following tasks:</p>
 
 <ul>
-<li><a href="https://github.com/HackXIt/lvgl_ui_generator">UI Generator (Version 1)</a>: A modified version of the LVGL simulator for PC that generates a single random UI and captures a screenshot with annotations, using C and LVGL. This generator was originally used for UI screenshot generation, but was <strong>deprecated</strong> in favor of <strong>version 2</strong>, which uses micropython as a base. (🗎 <a href="https://hackxit.github.io/ui-detector/">Documentation</a>)</li>
-<li><a href="https://github.com/HackXIt/lvgl_ui_generator_v2">UI Generator (Version 2)</a>: An updated version of the UI generator that uses micropython and corresponding LVGL bindings as a base. This version is more flexible, easier to use and more maintenable than the original version.</li>
-<li><a href="https://github.com/HackXIt/ui_randomizer">UI Randomizer</a>: A python script module which uses the UI generator to create multiple UI screenshots with annotations in a single CLI interface. The output is organized into a dataset in YOLO format for training the model. <strong>This module is generally deprecated</strong> in favor of the UI Detector submodule, which combines the functionality of the UI Randomizer with YOLO training and optimization pipelines into a single repository.</li>
-<li><a href="https://github.com/HackXIt/ui-detector">UI Detector</a>: A repository containing multiple scripts/pipelines for generating datasets, training the YOLOv8 Model and hyperparameter optimization. <strong>This repository is the main focus of the project.</strong> It relies heavily on the usage of <a href="https://clear.ml/">ClearML</a> for experiment tracking, model optimization and dataset versioning.</li>
-<li><a href="https://github.com/HackXIt/ui-detector-paper">Paper</a>: The repository containing the <a href="https://github.com/HackXIt/ui-detector-paper/blob/main/Expose.tex">exposé</a> and <a href="https://github.com/HackXIt/ui-detector-paper/blob/main/Thesis.tex">final paper</a> for my bachelor thesis, describing the theoretical background, the project structure and the results of the project. Results include the evaluation of the base model and the project as a whole. Since this project and its submodules are subject to change in the future, <a href="https://github.com/HackXIt/ui-detector-paper/blob/main/commits.md">a list of commits is provided in the paper repository</a>, which showcase the state of the project at the time of finishing the paper. The final source state of the project from the perspective of the paper can also be found in the <a href="https://github.com/HackXIt/lvgl-ui-detector/releases">release marked <code>paper-final</code></a> of this repository.</li>
+<li><code>generate.py</code> - Task for generating a dataset using <a href="">LVGL UI Generator v2</a> in either <code>random</code> or <code>design</code> mode.</li>
+<li><code>train.py</code> - Task for training the YOLOv8 model on a provided dataset ID from ClearML.</li>
+<li><code>optimize.py</code> - Task for optimizing the YOLOv8 model on a provided task ID from ClearML using <a href="https://optuna.org/">Optuna</a>.</li>
+<li><code>tune.py</code> - Task for tuning on a provided dataset ID from ClearML using the tuning functionality of YOLO _(Their built-in hyperparameter optimization)_.</li>
 </ul>
 
-<h2 id="dependency-management">Dependency management</h2>
+<h2 id="generate">Generate</h2>
 
-<p>All projects use <a href="https://python-poetry.org/">Poetry</a> for python package creation and dependency management. This repository as well as each submodule contains a <code>pyproject.toml</code> file with the necessary dependencies to work with the project. <strong>Please refer to the README of each submodule for more information on how to set up the environment.</strong></p>
+<p>The task will generate random UIs using the <a href="https://github.com/HackXIt/lvgl_ui_generator_v2">LVGL UI Generator v2</a>.
+It does so by repeatedly calling the generator using the chosen mode and provided parameters for it.</p>
 
-<p>The main project has a <code>pyproject.toml</code> due to historic reasons, since it used to contain the code of the UI Detector submodule. It now serves more as a placeholder and starting point if new submodules would be added. In general, <strong>the main project's `<code>pyproject.toml</code> should not be used for setting up an environment</strong>, but rather serve as a documentation and starting point for the project. In the future _(after the paper is released)_, contents of the main project will get more cleaned up.</p>
+<p>Errors during generation, as well as statistics about the generated dataset, are tracked and reported in the ClearML task.</p>
 
-<h2 id="clearml">ClearML</h2>
+<p>After finishing the generation, the task will create a ClearML dataset from the output folder.</p>
 
-<p>The project uses <a href="https://clear.ml/">ClearML</a> for experiment tracking, model optimization and dataset versioning. ClearML is a powerful tool that allows for easy tracking of experiments, datasets and models. It also provides a powerful hyperparameter optimization tool that can be used to optimize the model for the best possible performance.</p>
-
-<p>Since the <a href="./ui-detector/">UI Detector submodule</a> relies so heavily on ClearML, it is required to have an account and API key setup to use it. This is also the reason why the <a href="./ui_randomizer/">UI Randomizer submodule</a> exists, since it can be used to run the generator repeatedly without the hard dependency on ClearML. For training purposes, the <a href="https://docs.ultralytics.com/usage/python/">YOLOv8 python package</a> as well as <a href="https://docs.ultralytics.com/usage/cli/">CLI tools</a> can be used to train a model on generated datasets without requiring ClearML.</p>
-
-<p>ClearML also provides the possibility of setting up a standalone server, which can be used to host locally. If you do not want to setup an account with ClearML directly, you are required to setup a local server to use the UI Detector submodule. You can find out more information on how to set up a local server in the <a href="https://clear.ml/docs/latest/docs/deploying_clearml/clearml_server">ClearML server documentation</a>.</p>
-
-<h3 id="clearml-configuration">ClearML configuration</h3>
-
-<p>For simply using ClearML, the API keys can be provided directly in the CLI, in code or as environment variables. To connect to the ClearML SDK it is as simple as running <code>clearml-init</code> in your terminal and following the instructions. Checkout the <a href="https://clear.ml/docs/latest/docs/getting_started/ds/ds_first_steps">Getting Started Tutorial</a> for more details.</p>
-
-<p>However, to effectively orchestrate tasks/pipelines you need to use the ClearML agent, which requires a configuration file.
-An example ClearML configuration can be found in the <a href="https://github.com/allegroai/clearml-agent">ClearML agent repository</a>, which contains a basic <a href="https://raw.githubusercontent.com/allegroai/clearml-agent/master/docs/clearml.conf"><code>clearml.conf</code></a> file. This file can be modified and stored in the target machine, mainly to configure the <a href="https://clear.ml/docs/latest/docs/clearml_agent/">ClearML agent</a>.</p>
-
-<p>More information about the configuration file can be found in the <a href="https://clear.ml/docs/latest/docs/configs/configuring_clearml">ClearML config documentation</a>.</p>
-
-<p>Configuration options that need to be modified on the template are:</p>
-
-<ul>
-<li><code>api.api_server</code>: The URL of the ClearML server you are using. If you are using the ClearML cloud service, this should be <code>https://api.clear.ml</code>, otherwise it should point to the URL of your local server.</li>
-<li><code>api.web_server</code>: The URL of the ClearML web server you are using. If you are using the ClearML cloud service, this should be <code>https://app.clear.ml</code>, otherwise it should point to the URL of your local server.</li>
-<li><code>api.files_server</code>: The URL of the ClearML files server you are using. If you are using the ClearML cloud service, this should be <code>https://files.clear.ml</code>, otherwise it should point to the URL of your local server.</li>
-<li><code>api.credentials</code>: An object containing the <code>access_key</code> and <code>secret_key</code> for your account on the used ClearML server. They can be found/created in your ClearML account settings on the web interface. You may also configure these by setting the <code>CLEARML_API_ACCESS_KEY</code> and <code>CLEARML_API_SECRET_KEY</code> environment variables. More information on setting up these keys can be found in the <a href="https://clear.ml/docs/latest/docs/webapp/webapp_profile/#clearml-credentials">ClearML WebApp documentation</a>.</li>
-</ul>
-
-<p>Beyond that, it is recommend to checkout the <code>agent</code> section of the configuration file to configure the agent according to your needs. The agent is used to run experiments on remote machines and can also be used to run the UI Detector submodule on a remote machine. </p>
-
-<p>_(For the generator it requires a setup display server, such as the <a href="https://www.x.org/wiki/Documentation/">X window system</a>)_</p>
-
-<h2 id="lvgl-ui-generator-version-1">LVGL UI Generator (Version 1)</h2>
-
-<p>Version 1 of the LVGL UI Generator is a modified version of the LVGL simulator for PC that generates a single random UI and captures a screenshot with annotations. It is based on the <a href="https://github.com/lvgl/lv_port_pc_vscode">lv_port_pc_vscode</a> repository, since that is the IDE I use and also the only one I dared to modify.</p>
-
-<p>When launched with the proper arguments, it will open a window with a single container widget of the provided size placed inside. After rendering the UI, it will generate a screenshot of the container and save it to the provided path. It will also generate a text file with the bounding boxes of the placed widgets.</p>
-
-<p>Further information can be found in the <a href="https://github.com/HackXIt/lvgl_ui_generator/blob/master/README.md">UI Generator v1 README</a>.</p>
-
-<h2 id="lvgl-ui-generator-version-2">LVGL UI Generator (Version 2)</h2>
-
-<p>Version 2 of the LVGL UI Generator is an updated version of the UI generator that uses micropython and corresponding LVGL bindings as a base. This version is more flexible, easier to use and more maintenable than the original version.</p>
-
-<p>It has two modes of operation:</p>
-
-<ul>
-<li><strong>Random mode</strong>: Generates a random UI with a specified number of widgets placed on a white background. It requires a provided list of widget types to randomly choose from.</li>
-<li><strong>Design mode</strong>: Generates a UI based on a provided JSON design file. The design file describes the whole window, including styles, widgets and certain properties. There is a special <code>random</code> widget, which can be used to randomize widget creation in certain areas of the design. This mode is useful in creating more realistic looking user interfaces, as the random mode does not accomodate for styles regarding the containers.</li>
-</ul>
-
-<p>Further information about usage and setup can be found in the <a href="https://github.com/HackXIt/lvgl_ui_generator_v2/blob/main/README.md">UI Generator v2 README</a>.</p>
-
-<h2 id="ui-randomizer">UI Randomizer</h2>
-
-<p>The UI Randomizer is a python script module which uses the UI generator to create multiple UI screenshots with annotations in a single CLI interface. The output is organized into a dataset in YOLO format for training the model. Additionally, the script can handle uploading of these manually created datasets to <a href="https://clear.ml/">ClearML</a>, if the specific <code>clearml</code> options are provided in the CLI.</p>
-
-<p>Further information can be found in the <a href="https://github.com/HackXIt/ui_randomizer/blob/main/README.md">UI Randomizer README</a>.</p>
-
-<h2 id="ui-detector">UI Detector</h2>
-
-<p>The UI Detector is a repository containing multiple scripts for generating datasets, training the YOLOv8 Model and hyperparameter optimization. <strong>This repository is the main focus of the project.</strong> It relies heavily on the usage of ClearML for experiment tracking, model optimization and dataset versioning.</p>
-
-<p>Further information can be found in the <a href="https://github.com/HackXIt/ui-detector/blob/main/README.md">UI Detector README</a>.</p>
-
-<h2 id="docker-image">Docker image</h2>
-
-<p>A docker image is provided for development purposes. It is derived from the official <a href="https://hub.docker.com/r/ultralytics/ultralytics">Ultralytics docker image</a> and contains all necessary dev-dependencies for the project _(i.e. JupyterLab)_.</p>
-
-<p>The image can be built using the provided <code>Dockerfile</code> in the root directory of the repository. Additionally, there's a <a href="./scripts/run_container.sh">run_container.sh script</a> provided for convenience in the <a href="./scripts/">scripts</a> folder.</p>
-
-<p>The script and image currently only serve development purposes for my own personal use and are not taking any other needs into account.</p>
-
-<h2 id="vscode-workspace">VSCode workspace</h2>
-
-<p>The project was developed using <a href="https://code.visualstudio.com/">Visual Studio Code</a>. </p>
-
-<p>The main repository contains the <code>ui-detector.code-workspace</code>, which organizes all submodules into seperate workspaces. All deprecated submodules are still included in the workspace, but are commented out to clean up the workspace view.</p>
-
-<p>The workspace file is intended for development purposes and suggests the usage of a few extensions. These included suggestions are generally required to develop the submodules properly.</p>
+<p>The details about this are described in the <a href="#dataset-creation">Dataset section</a>, as it is the same for all modes.</p>
 
 <p><details>
-<summary> Required extensions for the workspace</summary></p>
+<summary>Help</summary></p>
 
-<ul>
-<li><a href="https://marketplace.visualstudio.com/items?itemName=ms-python.python">Python</a></li>
-<li><a href="https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter">Jupyter</a></li>
-<li><a href="https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools-extension-pack">C/C++ Extension Pack</a>
-</details></li>
-</ul>
+<div class="pdoc-code codehilite">
+<pre><span></span><code>usage:<span class="w"> </span>generate.py<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span><span class="o">[</span>-o<span class="w"> </span>OUTPUT_FOLDER<span class="o">]</span><span class="w"> </span><span class="o">[</span>--mpy-path<span class="w"> </span>MPY_PATH<span class="o">]</span><span class="w"> </span><span class="o">[</span>--mpy-main<span class="w"> </span>MPY_MAIN<span class="o">]</span><span class="w"> </span><span class="o">[</span>-d<span class="w"> </span>DATASET<span class="o">]</span><span class="w"> </span><span class="o">[</span>-s<span class="w"> </span>SPLIT_RATIO<span class="w"> </span>SPLIT_RATIO<span class="w"> </span>SPLIT_RATIO<span class="o">]</span><span class="w"> </span><span class="o">[</span>--no-dataset<span class="o">]</span>
+<span class="w">                   </span><span class="o">{</span>random,design<span class="o">}</span><span class="w"> </span>...
 
-<p>I personally use a few more extensions than that and to credit their creators/maintainers, a purely optional list is provided here as well.</p>
+Generate<span class="w"> </span>UI<span class="w"> </span>Detector<span class="w"> </span>dataset
 
-<p><details>
-<summary> Optional extensions for this workspace <i>(in no particular order)</i></summary></p>
+positional<span class="w"> </span>arguments:
+<span class="w">  </span><span class="o">{</span>random,design<span class="o">}</span><span class="w">       </span>Type<span class="w"> </span>of<span class="w"> </span>LVGL<span class="w"> </span>UI<span class="w"> </span>generator<span class="w"> </span>to<span class="w"> </span>use
+<span class="w">    </span>random<span class="w">              </span>Generate<span class="w"> </span>random<span class="w"> </span>UI
+<span class="w">    </span>design<span class="w">              </span>Generate<span class="w"> </span>UI<span class="w"> </span>from<span class="w"> </span>design<span class="w"> </span>files
 
-<ul>
-<li><a href="https://marketplace.visualstudio.com/items?itemName=alefragnani.project-manager">Project Manager</a></li>
-<li><a href="https://marketplace.visualstudio.com/items?itemName=Gruntfuggly.todo-tree">Todo Tree</a></li>
-<li><a href="https://marketplace.visualstudio.com/items?itemName=bnavetta.zoterolatex">Zotero LaTeX</a></li>
-<li><a href="https://marketplace.visualstudio.com/items?itemName=mblode.zotero">Citation Picker for Zotero</a></li>
-<li><a href="https://marketplace.visualstudio.com/items?itemName=James-Yu.latex-workshop">LaTeX Workshop</a></li>
-<li><a href="https://marketplace.visualstudio.com/items?itemName=tecosaur.latex-utilities">LaTeX Utilities</a></li>
-<li><a href="https://marketplace.visualstudio.com/items?itemName=tal7aouy.icons">Icons for Visual Studio Code</a></li>
-<li><a href="https://marketplace.visualstudio.com/items?itemName=GitHub.copilot">GitHub Copilot</a></li>
-<li><a href="https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-docker">Docker</a></li>
-<li><a href="https://marketplace.visualstudio.com/items?itemName=mhutchie.git-graph">Git Graph</a></li>
-<li><a href="https://marketplace.visualstudio.com/items?itemName=donjayamanne.githistory">Git History</a></li>
-<li><a href="https://marketplace.visualstudio.com/items?itemName=xyz.local-history">Local History</a></li>
-<li><a href="https://marketplace.visualstudio.com/items?itemName=mcu-debug.memory-view">MemoryView</a></li>
-</ul>
+options:
+<span class="w">  </span>-h,<span class="w"> </span>--help<span class="w">            </span>show<span class="w"> </span>this<span class="w"> </span><span class="nb">help</span><span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span><span class="nb">exit</span>
+<span class="w">  </span>-o<span class="w"> </span>OUTPUT_FOLDER,<span class="w"> </span>--output-folder<span class="w"> </span>OUTPUT_FOLDER
+<span class="w">                        </span>Output<span class="w"> </span>folder<span class="w"> </span><span class="o">(</span>default:<span class="w"> </span>tmp/output<span class="o">)</span>
+<span class="w">  </span>--mpy-path<span class="w"> </span>MPY_PATH<span class="w">   </span>Path<span class="w"> </span>to<span class="w"> </span>MicroPython<span class="w"> </span>binary<span class="w"> </span><span class="o">(</span>loads<span class="w"> </span>from<span class="w"> </span>environment<span class="w"> </span>MICROPYTHON_BIN<span class="w"> </span><span class="k">if</span><span class="w"> </span>not<span class="w"> </span>provided<span class="o">)</span><span class="w"> </span><span class="o">(</span>default:<span class="w"> </span>None<span class="o">)</span>
+<span class="w">  </span>--mpy-main<span class="w"> </span>MPY_MAIN<span class="w">   </span>Path<span class="w"> </span>to<span class="w"> </span>main.py<span class="w"> </span>of<span class="w"> </span>micropython<span class="w"> </span>script<span class="w"> </span><span class="o">(</span>loads<span class="w"> </span>from<span class="w"> </span>environment<span class="w"> </span>MICROPYTHON_MAIN<span class="w"> </span><span class="k">if</span><span class="w"> </span>not<span class="w"> </span>provided<span class="o">)</span><span class="w"> </span><span class="o">(</span>default:<span class="w"> </span>None<span class="o">)</span>
+<span class="w">  </span>-d<span class="w"> </span>DATASET,<span class="w"> </span>--dataset<span class="w"> </span>DATASET
+<span class="w">                        </span>Custom<span class="w"> </span>name<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>dataset<span class="w"> </span>written<span class="w"> </span><span class="k">in</span><span class="w"> </span>the<span class="w"> </span>task<span class="w"> </span>comment<span class="w"> </span><span class="o">(</span>default:<span class="w"> </span>None<span class="o">)</span>
+<span class="w">  </span>-s<span class="w"> </span>SPLIT_RATIO<span class="w"> </span>SPLIT_RATIO<span class="w"> </span>SPLIT_RATIO,<span class="w"> </span>--split-ratio<span class="w"> </span>SPLIT_RATIO<span class="w"> </span>SPLIT_RATIO<span class="w"> </span>SPLIT_RATIO
+<span class="w">                        </span>Split<span class="w"> </span>ratio<span class="w"> </span><span class="k">for</span><span class="w"> </span>train,<span class="w"> </span>val,<span class="w"> </span><span class="nb">test</span><span class="w"> </span><span class="o">(</span>default:<span class="w"> </span>None<span class="o">)</span>
+<span class="w">  </span>--no-dataset<span class="w">          </span>Do<span class="w"> </span>not<span class="w"> </span>create<span class="w"> </span>a<span class="w"> </span>ClearML<span class="w"> </span>dataset<span class="w"> </span><span class="o">(</span>artifacts<span class="w"> </span>are<span class="w"> </span>added<span class="w"> </span>to<span class="w"> </span>Task<span class="o">)</span><span class="w"> </span><span class="o">(</span>default:<span class="w"> </span>False<span class="o">)</span>
+Subparser<span class="w"> </span><span class="s1">&#39;random&#39;</span>
+usage:<span class="w"> </span>generate.py<span class="w"> </span>random<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span><span class="o">[</span>-W<span class="w"> </span>WIDTH<span class="o">]</span><span class="w"> </span><span class="o">[</span>-H<span class="w"> </span>HEIGHT<span class="o">]</span><span class="w"> </span><span class="o">[</span>-c<span class="w"> </span>COUNT<span class="o">]</span><span class="w"> </span><span class="o">[</span>-l<span class="w"> </span>LAYOUT<span class="o">]</span><span class="w"> </span><span class="o">[</span>-x<span class="w"> </span>AMOUNT<span class="o">]</span>
+
+options:
+<span class="w">  </span>-h,<span class="w"> </span>--help<span class="w">            </span>show<span class="w"> </span>this<span class="w"> </span><span class="nb">help</span><span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span><span class="nb">exit</span>
+<span class="w">  </span>-W<span class="w"> </span>WIDTH,<span class="w"> </span>--width<span class="w"> </span>WIDTH
+<span class="w">                        </span>Width<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>UI<span class="w"> </span>screenshot
+<span class="w">  </span>-H<span class="w"> </span>HEIGHT,<span class="w"> </span>--height<span class="w"> </span>HEIGHT
+<span class="w">                        </span>Height<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>UI<span class="w"> </span>screenshot
+<span class="w">  </span>-c<span class="w"> </span>COUNT,<span class="w"> </span>--count<span class="w"> </span>COUNT
+<span class="w">                        </span>Number<span class="w"> </span>of<span class="w"> </span>widgets<span class="w"> </span>to<span class="w"> </span>create<span class="w"> </span>per<span class="w"> </span>output
+<span class="w">  </span>-l<span class="w"> </span>LAYOUT,<span class="w"> </span>--layout<span class="w"> </span>LAYOUT
+<span class="w">                        </span>The<span class="w"> </span>main<span class="w"> </span>container<span class="w"> </span>layout<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>random<span class="w"> </span>UI<span class="w"> </span><span class="o">[</span><span class="s2">&quot;grid&quot;</span>,<span class="w"> </span><span class="s2">&quot;flex&quot;</span>,<span class="w"> </span><span class="s2">&quot;none&quot;</span><span class="o">]</span>
+<span class="w">  </span>-x<span class="w"> </span>AMOUNT,<span class="w"> </span>--amount<span class="w"> </span>AMOUNT
+<span class="w">                        </span>Amount<span class="w"> </span>of<span class="w"> </span>outputs<span class="w"> </span>per<span class="w"> </span>widget<span class="w"> </span>class<span class="w"> </span>to<span class="w"> </span>create
+
+Subparser<span class="w"> </span><span class="s1">&#39;design&#39;</span>
+usage:<span class="w"> </span>generate.py<span class="w"> </span>design<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span><span class="o">{</span>local,remote,gpt<span class="o">}</span><span class="w"> </span>...
+
+positional<span class="w"> </span>arguments:
+<span class="w">  </span><span class="o">{</span>local,remote,gpt<span class="o">}</span><span class="w">  </span>Variant<span class="w"> </span>of<span class="w"> </span>design<span class="w"> </span>generator<span class="w"> </span>to<span class="w"> </span>use
+<span class="w">    </span><span class="nb">local</span><span class="w">             </span>Generate<span class="w"> </span>UIs<span class="w"> </span>from<span class="w"> </span><span class="nb">local</span><span class="w"> </span>design<span class="w"> </span>files
+<span class="w">    </span>remote<span class="w">            </span>Generate<span class="w"> </span>UIs<span class="w"> </span>from<span class="w"> </span>remote<span class="w"> </span>design<span class="w"> </span>files
+<span class="w">    </span>gpt<span class="w">               </span>Generate<span class="w"> </span>UIs<span class="w"> </span>using<span class="w"> </span>ChatGPT<span class="w"> </span>API
+
+options:
+<span class="w">  </span>-h,<span class="w"> </span>--help<span class="w">          </span>show<span class="w"> </span>this<span class="w"> </span><span class="nb">help</span><span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span><span class="nb">exit</span>
+</code></pre>
+</div>
 
 <p></details></p>
 
-<hr />
+<h3 id="random-mode">Random mode</h3>
 
-<h1 id="authors-note">Author's Note</h1>
+<p><img src="assets/Framework-Generic_random-mode.png" alt="Mode Random" /></p>
 
-<p>This project was created for my bachelor thesis at the <a href="https://www.technikum-wien.at/en/">University of Applied Sciences Technikum Vienna</a>.</p>
+<p>The random mode will create a UI window in the provided dimensions and fill it with randomly chosen widgets. This mode will always start from the full list of implemented types.</p>
 
-<p>...and I am tired.</p>
+<p>The provided <code>count</code> determines the amount of widgets per screenshot, while the <code>amount</code> determines the target amount of widgets per class to be included in the dataset.
+Since the generator chooses widget types randomly, the amount of created widget types is tracked.
+The generator will remove the widget type from the list of choices once the target amount for that type is reached or exceeded.</p>
 
-<hr />
+<p>This helps ensuring that there is an appropriate and balanced amount of widget types in the dataset.</p>
 
-<h1 id="milestones">Milestones</h1>
+<p>You can view statistics about the generated dataset in the scalars and reports of the ClearML task.</p>
+
+<p><details>
+<summary>Statistics created in random mode</summary></p>
+
+<p></details></p>
+
+<h3 id="design-mode">Design mode</h3>
+
+<p>The design mode will create UI windows using design files.</p>
+
+<p>It supports additional modes of operation:</p>
 
 <ul>
-<li><input type="checkbox" class="task-list-item-checkbox" checked disabled> Create UI generator</li>
-<li><input type="checkbox" class="task-list-item-checkbox" checked disabled> Create UI randomizer</li>
-<li><input type="checkbox" class="task-list-item-checkbox" checked disabled> Create model</li>
-<li><input type="checkbox" class="task-list-item-checkbox" checked disabled> Make model predict the pre-defined widget list</li>
-<li><input type="checkbox" class="task-list-item-checkbox" checked disabled> Finish Exposé</li>
-<li><input type="checkbox" class="task-list-item-checkbox" checked disabled> Finish Exposé presentation</li>
-<li><input type="checkbox" class="task-list-item-checkbox" checked disabled> Complete README documentation in all submodules</li>
-<li><input type="checkbox" class="task-list-item-checkbox" disabled> Finish bachelor thesis</li>
-<li><input type="checkbox" class="task-list-item-checkbox" checked disabled> Finish thesis presentation</li>
-<li><input type="checkbox" class="task-list-item-checkbox" disabled> Did not catch burn-out syndrome</li>
+<li><code>local</code> - Generate UIs from a folder containing local design files</li>
+<li><code>remote</code> - Generate UIs from a remote location containing design files <strong>(not implemented yet)</strong></li>
+<li><code>gpt</code> - Generate UIs from design files generated by the ChatGPT API</li>
 </ul>
 
-<h1 id="feature-roadmap">Feature roadmap</h1>
+<p>The design files are expected to be in a specific format, which is described in the <a href="https://github.com/HackXIt/lvgl_ui_generator_v2/blob/main/README.md">Generator README</a>.</p>
+
+<p>You can also view the JSON schema for the design files in the <a href="schema/design_schema.json">design_schema.json</a> file.</p>
+
+<p><details>
+<summary>Statistics in design mode</summary></p>
+
+<p><img src="assets/Statistics_design-mode.png" alt="Design statistics" /></p>
+
+<p></details></p>
+
+<h4 id="local-mode">Local mode</h4>
+
+<p><img src="assets/Framework-Generic_design-mode-local.png" alt="Mode Design Local" /></p>
+
+<p>The local mode expects a folder containing JSON design files.</p>
+
+<p>Design files are not validated against the schema, since the generator will report any missing properties or incorrect values as it encounters them.</p>
+
+<p>The task will go through the folder, calling the generator for each design file, which determines the total iterations of the task.</p>
+
+<p>It will attempt to retry generation up to 4 times, since the generator might fail due to memory issues, which can be resolved by retrying.
+Overall this does not affect generation time significantly, since the generator is fast enough when exiting.</p>
+
+<p>Any errors encountered during generation will be reported in the ClearML task and also tracked per iteration.</p>
+
+<p>The created image and annotation file is then renamed and moved into the output folder.
+The task will check each annotation file to create statistics about the amount of widgets per class in the dataset. When doing so, it will also verify the bounding box per widget to ensure it is within the image bounds. Any invalid bounding boxes will be reported in the ClearML task and also removed from the annotation file.</p>
+
+<p>The task will show the following scalar statistics:</p>
 
 <ul>
-<li><input type="checkbox" class="task-list-item-checkbox" checked disabled> Add more widgets to the generator and model</li>
-<li><input type="checkbox" class="task-list-item-checkbox" checked disabled> Improve dataset size (min. 50 per class) and training process (1-click-pipeline)</li>
-<li><input type="checkbox" class="task-list-item-checkbox" checked disabled> Add widget customization in generator (color, size, etc.)</li>
-<li><input type="checkbox" class="task-list-item-checkbox" checked disabled> Add design file system for randomizer &amp; generator</li>
+<li>Total amount of widgets created</li>
+<li>Total amount of generation errors</li>
+<li>Amount of widgets per class</li>
+</ul>
+
+<p><details>
+<summary>Help</summary></p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code>usage:<span class="w"> </span>generate.py<span class="w"> </span>design<span class="w"> </span><span class="nb">local</span><span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span><span class="o">[</span>-f<span class="w"> </span>DESIGN_FOLDER<span class="o">]</span>
+
+options:
+<span class="w">  </span>-h,<span class="w"> </span>--help<span class="w">            </span>show<span class="w"> </span>this<span class="w"> </span><span class="nb">help</span><span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span><span class="nb">exit</span>
+<span class="w">  </span>-f<span class="w"> </span>DESIGN_FOLDER,<span class="w"> </span>--design-folder<span class="w"> </span>DESIGN_FOLDER
+<span class="w">                        </span>Source<span class="w"> </span>folder<span class="w"> </span><span class="k">for</span><span class="w"> </span>design<span class="w"> </span>generator
+</code></pre>
+</div>
+
+<p></details></p>
+
+<h4 id="remote-mode">Remote mode</h4>
+
+<p>The remote mode is not implemented yet.</p>
+
+<p><details>
+<summary>Help</summary></p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code>usage:<span class="w"> </span>generate.py<span class="w"> </span>design<span class="w"> </span>remote<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span>
+
+options:
+<span class="w">  </span>-h,<span class="w"> </span>--help<span class="w">  </span>show<span class="w"> </span>this<span class="w"> </span><span class="nb">help</span><span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span><span class="nb">exit</span>
+</code></pre>
+</div>
+
+<p></details></p>
+
+<h4 id="gpt-mode">GPT mode</h4>
+
+<p><img src="assets/Framework-Generic_design-mode-gpt.png" alt="Mode Design GPT" /></p>
+
+<p>Since creating design files manually can be time-consuming, the GPT mode allows generating design files using a LLM, namely the ChatGPT API.</p>
+
+<p>This is done by first asking the LLM for a design idea in a randomly chosen context and theme. This list contains <strong>10000 options</strong> _(100 contexts combined with 100 themes)_ and is hardcoded currently, see further below.</p>
+
+<p>The design idea is then passed to the LLM again to generate the design file, using the available schema as guidance. The returned JSON by the LLM is validated against the schema and any errors are reported in the ClearML task. The errors are feeded back into the LLM for correction. This is re-attempted 3 times before giving up and moving to the next randomly chosen context and theme.</p>
+
+<p>If the returned design file is valid, it is added to the list to be generated.</p>
+
+<p>Once the desired amount of design files is reached, the task will go through the list and generate the UIs using the generator. This process is then the same as in the local mode.</p>
+
+<p><details>
+<summary>Help</summary></p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code>usage:<span class="w"> </span>generate.py<span class="w"> </span>design<span class="w"> </span>gpt<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span><span class="o">[</span>--api-key<span class="w"> </span>API_KEY<span class="o">]</span><span class="w"> </span>--model<span class="w"> </span>MODEL<span class="w"> </span><span class="o">[</span>--max-tokens<span class="w"> </span>MAX_TOKENS<span class="o">]</span><span class="w"> </span><span class="o">[</span>--designs<span class="w"> </span>DESIGNS<span class="o">]</span><span class="w"> </span><span class="o">[</span>--temperature<span class="w"> </span>TEMPERATURE<span class="w"> </span><span class="p">|</span><span class="w"> </span>--top-p<span class="w"> </span>TOP_P<span class="o">]</span>
+
+options:
+<span class="w">  </span>-h,<span class="w"> </span>--help<span class="w">            </span>show<span class="w"> </span>this<span class="w"> </span><span class="nb">help</span><span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span><span class="nb">exit</span>
+<span class="w">  </span>--api-key<span class="w"> </span>API_KEY<span class="w">     </span>ChatGPT<span class="w"> </span>API<span class="w"> </span>key
+<span class="w">  </span>--model<span class="w"> </span>MODEL<span class="w">         </span>ChatGPT<span class="w"> </span>model<span class="w"> </span>name
+<span class="w">  </span>--max-tokens<span class="w"> </span>MAX_TOKENS
+<span class="w">                        </span>ChatGPT<span class="w"> </span>maximum<span class="w"> </span>tokens
+<span class="w">  </span>--designs<span class="w"> </span>DESIGNS<span class="w">     </span>Number<span class="w"> </span>of<span class="w"> </span>designs<span class="w"> </span>to<span class="w"> </span>generate
+<span class="w">  </span>--temperature<span class="w"> </span>TEMPERATURE
+<span class="w">                        </span>ChatGPT<span class="w"> </span>sampling<span class="w"> </span>temperature
+<span class="w">  </span>--top-p<span class="w"> </span>TOP_P<span class="w">         </span>ChatGPT<span class="w"> </span>top-p<span class="w"> </span>sampling
+</code></pre>
+</div>
+
+<p></details></p>
+
+<p><details>
+<summary>Additional statistics in design mode GPT</summary></p>
+
+<p>The GPT designer reports on the amount of widgets used in a generated design _(per widget class)_ for each iteration.</p>
+
+<p><img src="assets/Statistics_design-mode-gpt.png" alt="GPT Designer iterations" /></p>
+
+<p></details></p>
+
+<p><details>
+<summary>100 contexts and 100 themes used</summary></p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="c1"># Prompted with: Create a list of 100 topics that an embedded user interface could be about.</span>
+<span class="n">topics</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;Smart Home Control Systems&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Wearable Fitness Trackers&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Automotive Dashboard Displays&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Industrial Automation Interfaces&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Agricultural Monitoring Systems&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Medical Device Interfaces&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Drone Control Panels&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Retail Point of Sale Systems&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Smart Watches Interfaces&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Security System Controls&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Marine Navigation Systems&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Building Climate Control Systems&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Home Appliance Controls (e.g., Smart Refrigerators)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Energy Management Displays&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Portable Music Players&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Electronic Thermostats&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Educational Tablets for Kids&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Emergency Alert Systems&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Water Purification System Controls&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Lighting Control Systems&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Portable Gaming Devices&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Smart Mirror Technologies&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Elevator Control Panels&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Vending Machine Interfaces&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Fitness Equipment Consoles&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Industrial Robot Controllers&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Smart Bed Controls&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Smart Glasses Interfaces&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Pet Tracking Devices&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Baby Monitoring Systems&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Digital Signage&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Ticketing Kiosks&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Virtual Reality Headset Interfaces&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Library Management Kiosks&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Smart Lock Interfaces&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Laboratory Equipment Interfaces&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Smart Pens&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Art Installation Controls&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;HVAC Control Systems&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Railroad Monitoring Systems&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Handheld GPS Devices&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Digital Cameras&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Smart Toothbrushes&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Aircraft Cockpit Displays&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Electric Vehicle Charging Stations&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Soil Moisture Sensors&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Smart Jewelry&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Pipeline Monitoring Systems&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Waste Management Systems&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Personal Medical Devices (e.g., Insulin Pumps)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Public Transportation Displays&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;On-board Ship Computers&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Smart Plant Pots&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Industrial Pressure Sensors&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Interactive Museum Exhibits&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Smart Bicycle Systems&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Conference Room Booking Displays&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Augmented Reality Interfaces&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Remote Wilderness Cameras&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Interactive Retail Displays&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Spacecraft Control Interfaces&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Wireless Router Management&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Smart City Infrastructure Interfaces&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Factory Assembly Line Displays&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Car Rental Kiosks&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Airport Check-in Kiosks&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Digital Billboards&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Hospital Room Information Panels&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Power Grid Monitoring Systems&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Oil Rig Monitoring Interfaces&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Smart Suitcases&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Fishing Gear Electronics&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Underwater Exploration Devices&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Digital Menu Boards in Restaurants&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Emergency Vehicle Dashboards&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Voice-Controlled Home Assistants&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Smart Coasters (beverage temperature)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Bicycle Sharing System Terminals&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Smart Shower Panels&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Mining Equipment Interfaces&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Forest Fire Detection Systems&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Smart Windows&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Interactive Dance Floors&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Smart Ring Interfaces&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Professional Camera Systems&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Home Brewing Systems&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Smart Mailboxes&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Autonomous Farm Equipment&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Wind Turbine Controls&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Smart Blinds and Curtains&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Logistics Tracking Systems&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Parking Garage Equipment&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Smart Helmet Displays&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Boat Instrumentation Panels&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Interactive Park Equipment&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Livestock Tracking Systems&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Remote Surgery Consoles&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Weather Monitoring Stations&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Smart Gloves&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Electronic Voting Machines&quot;</span>
+<span class="p">]</span>
+
+<span class="c1"># Prompted with: Create a list of 100 themes that could be applied to these user interfaces.</span>
+<span class="n">themes</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot; Minimalist&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Futuristic&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Retro&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;High Contrast&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Dark Mode&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Light Mode&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Nature-inspired&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Nautical&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Neon Glow&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Earthy Tones&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Pastel Colors&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;High Tech&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Art Deco&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Steampunk&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Material Design&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Flat Design&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;3D Depth&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Monochrome&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Kids-Friendly&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Elderly-Friendly&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Luxury&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Industrial&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Sports&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Educational&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Seasonal (e.g., Winter, Summer)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Holiday Themes (e.g., Christmas, Halloween)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Cartoon&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Abstract&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Photorealistic&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Geometric&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Military&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Space Exploration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Underwater&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Urban&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Rural&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Health Focused&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Accessibility Enhanced&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Cultural (e.g., Japanese, Mexican)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Cyberpunk&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Virtual Reality&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Augmented Reality&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Transparent Interfaces&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Glass Effect&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Vintage Film&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Comic Book&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Parchment and Ink&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Origami&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Glow in the Dark&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Neon Signs&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Hand-drawn&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Watercolor&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Grunge&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Metallic&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Zen and Tranquility&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Casino&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Outer Space&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Sci-Fi&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Historical Periods (e.g., Victorian, Medieval)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Typography-Based&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Animal Print&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Floral&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Ocean Waves&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Desert Sands&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Mountainous Terrain&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Tropical Paradise&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Arctic Freeze&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Jungle Theme&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Auto Racing&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Aviation&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Sailing&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Rock and Roll&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Hip Hop&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Classical Music&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Opera&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Ballet&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Theatre&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Film Noir&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Silent Film&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Neon Jungle&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Crystal Clear&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Witchcraft and Wizardry&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Steampunk Mechanisms&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Pop Art&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Renaissance Art&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Graffiti&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Pixel Art&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ASCII Art&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Mosaic&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Lego Style&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Board Game&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Video Game&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Dystopian&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Utopian&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Western&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Eastern&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Minimalist Text&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Bold Color Blocks&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Line Art&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Optical Illusions&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Neon Abstract&quot;</span>
+<span class="p">]</span>
+<span class="n">combinations</span> <span class="o">=</span> <span class="p">[(</span><span class="n">t</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">themes</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">topics</span><span class="p">]</span>
+</code></pre>
+</div>
+
+<p></details></p>
+
+<h2 id="train">Train</h2>
+
+<p><img src="assets/Framework-Generic_model-training.png" alt="Training" /></p>
+
+<p>The training task will train the YOLOv8 model on the provided dataset ID from ClearML.</p>
+
+<p>The task will download the dataset and prepare it for training. It will then start the training process, which will be tracked in the ClearML task.
+To allow for later editing and re-using of a task, the dataset path will be overrided with valid local path of the current environment, which can later be viewed in ClearML under parameter <code>General/data</code>.</p>
+
+<p>The CLI does not have any options for overriding hyperparameters, as ClearML provides a way to edit them in the task configuration.</p>
+
+<p>The easiest way to work with the task is a training locally for 1 epoch and then clone the task in ClearML to edit the hyperparameters.</p>
+
+<p><details>
+<summary>Help</summary></p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code>usage:<span class="w"> </span>train.py<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span><span class="o">[</span>--dataset<span class="w"> </span>DATASET<span class="o">]</span><span class="w"> </span><span class="o">[</span>--model<span class="w"> </span>MODEL<span class="o">]</span><span class="w"> </span><span class="o">[</span>--epochs<span class="w"> </span>EPOCHS<span class="o">]</span><span class="w"> </span><span class="o">[</span>--imgsz<span class="w"> </span>IMGSZ<span class="o">]</span>
+
+Train<span class="w"> </span>a<span class="w"> </span>YOLOv8<span class="w"> </span>model<span class="w"> </span>on<span class="w"> </span>a<span class="w"> </span>dataset
+
+options:
+<span class="w">  </span>-h,<span class="w"> </span>--help<span class="w">         </span>show<span class="w"> </span>this<span class="w"> </span><span class="nb">help</span><span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span><span class="nb">exit</span>
+<span class="w">  </span>--dataset<span class="w"> </span>DATASET<span class="w">  </span>Dataset<span class="w"> </span>ID<span class="w"> </span>to<span class="w"> </span>use<span class="w"> </span><span class="k">for</span><span class="w"> </span>training<span class="w"> </span><span class="o">(</span>default:<span class="w"> </span>None<span class="o">)</span>
+<span class="w">  </span>--model<span class="w"> </span>MODEL<span class="w">      </span>Model<span class="w"> </span>variant<span class="w"> </span>to<span class="w"> </span>use<span class="w"> </span><span class="k">for</span><span class="w"> </span>training<span class="w"> </span><span class="o">(</span>default:<span class="w"> </span>None<span class="o">)</span>
+<span class="w">  </span>--epochs<span class="w"> </span>EPOCHS<span class="w">    </span>Number<span class="w"> </span>of<span class="w"> </span>epochs<span class="w"> </span>to<span class="w"> </span>train<span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="o">(</span>default:<span class="w"> </span><span class="m">10</span><span class="o">)</span>
+<span class="w">  </span>--imgsz<span class="w"> </span>IMGSZ<span class="w">      </span>Image<span class="w"> </span>size<span class="w"> </span><span class="k">for</span><span class="w"> </span>training<span class="w"> </span><span class="o">(</span>default:<span class="w"> </span><span class="m">640</span><span class="o">)</span>
+</code></pre>
+</div>
+
+<p></details></p>
+
+<h2 id="optimize">Optimize</h2>
+
+<p><img src="assets/Framework-Generic_task-optimization.png" alt="Task optimization" /></p>
+
+<p>The optimization task will perform hyperparameter optimization on the paramaters of a provided task ID from ClearML using <a href="https://optuna.org/">Optuna</a>.</p>
+
+<p>It will currently always optimize towards the <code>mAP50-95</code> metric, which is the mean average precision of the model on the validation dataset.</p>
+
+<p>In the future, other target metrics will be added to the CLI options.</p>
+
+<p><details>
+<summary>Help</summary></p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code>usage:<span class="w"> </span>optimize.py<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span><span class="o">[</span>--id<span class="w"> </span>ID<span class="o">]</span><span class="w"> </span><span class="o">[</span>--local<span class="o">]</span><span class="w"> </span><span class="o">[</span>--pool-period<span class="w"> </span>POOL_PERIOD<span class="o">]</span><span class="w"> </span><span class="o">[</span>--max-jobs<span class="w"> </span>MAX_JOBS<span class="o">]</span><span class="w"> </span><span class="o">[</span>--max-concurrent<span class="w"> </span>MAX_CONCURRENT<span class="o">]</span>
+<span class="w">                   </span><span class="o">[</span>--max-iterations<span class="w"> </span>MAX_ITERATIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>--time-limit<span class="w"> </span>TIME_LIMIT<span class="o">]</span><span class="w"> </span><span class="o">[</span>--top-k<span class="w"> </span>TOP_K<span class="o">]</span><span class="w"> </span><span class="o">[</span>--execution-queue<span class="w"> </span>EXECUTION_QUEUE<span class="o">]</span>
+
+Optimize<span class="w"> </span>hyperparameters<span class="w"> </span><span class="k">for</span><span class="w"> </span>a<span class="w"> </span>ClearML<span class="w"> </span>training<span class="w"> </span>task
+
+options:
+<span class="w">  </span>-h,<span class="w"> </span>--help<span class="w">            </span>show<span class="w"> </span>this<span class="w"> </span><span class="nb">help</span><span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span><span class="nb">exit</span>
+<span class="w">  </span>--id<span class="w"> </span>ID<span class="w">               </span>Task<span class="w"> </span>ID<span class="w"> </span>to<span class="w"> </span>optimize<span class="w"> </span><span class="o">(</span>default:<span class="w"> </span>None<span class="o">)</span>
+<span class="w">  </span>--local<span class="w">               </span>Run<span class="w"> </span>the<span class="w"> </span>optimization<span class="w"> </span>locally<span class="w"> </span><span class="o">(</span>default:<span class="w"> </span>False<span class="o">)</span>
+<span class="w">  </span>--pool-period<span class="w"> </span>POOL_PERIOD
+<span class="w">                        </span>Pool<span class="w"> </span>period<span class="w"> </span><span class="k">in</span><span class="w"> </span>minutes<span class="w"> </span><span class="o">(</span>default:<span class="w"> </span><span class="m">5</span><span class="o">)</span>
+<span class="w">  </span>--max-jobs<span class="w"> </span>MAX_JOBS<span class="w">   </span>Maximum<span class="w"> </span>number<span class="w"> </span>of<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>to<span class="w"> </span>run<span class="w"> </span><span class="o">(</span>default:<span class="w"> </span><span class="m">25</span><span class="o">)</span>
+<span class="w">  </span>--max-concurrent<span class="w"> </span>MAX_CONCURRENT
+<span class="w">                        </span>Maximum<span class="w"> </span>number<span class="w"> </span>of<span class="w"> </span>concurrent<span class="w"> </span>tasks<span class="w"> </span><span class="o">(</span>default:<span class="w"> </span><span class="m">2</span><span class="o">)</span>
+<span class="w">  </span>--max-iterations<span class="w"> </span>MAX_ITERATIONS
+<span class="w">                        </span>Maximum<span class="w"> </span>number<span class="w"> </span>of<span class="w"> </span>iterations<span class="w"> </span>per<span class="w"> </span>job<span class="w"> </span><span class="o">(</span>default:<span class="w"> </span><span class="m">100</span><span class="o">)</span>
+<span class="w">  </span>--time-limit<span class="w"> </span>TIME_LIMIT
+<span class="w">                        </span>Time<span class="w"> </span>limit<span class="w"> </span><span class="k">for</span><span class="w"> </span>optimization<span class="w"> </span><span class="k">in</span><span class="w"> </span>minutes<span class="w"> </span><span class="o">(</span>default:<span class="w"> </span><span class="m">120</span><span class="o">)</span>
+<span class="w">  </span>--top-k<span class="w"> </span>TOP_K<span class="w">         </span>Number<span class="w"> </span>of<span class="w"> </span>top<span class="w"> </span>experiments<span class="w"> </span>to<span class="w"> </span>print<span class="w"> </span><span class="o">(</span>default:<span class="w"> </span><span class="m">5</span><span class="o">)</span>
+<span class="w">  </span>--execution-queue<span class="w"> </span>EXECUTION_QUEUE
+<span class="w">                        </span>Execution<span class="w"> </span>queue<span class="w"> </span><span class="k">for</span><span class="w"> </span>optimization<span class="w"> </span><span class="o">(</span>default:<span class="w"> </span>training<span class="o">)</span>
+</code></pre>
+</div>
+
+<p></details></p>
+
+<h2 id="tune">Tune</h2>
+
+<p><img src="assets/Framework-Generic_yolo-tuning.png" alt="YOLO Tuning" /></p>
+
+<p>The tune task will perform hyperparameter optimization on the provided dataset ID from ClearML using the <code>tune</code> function of the <a href="https://docs.ultralytics.com/reference/engine/tuner/">ultralytics engine</a>.</p>
+
+<p>It will then report the best hyperparameters found in the ClearML task.</p>
+
+<p>Due to the nature of automatic reporting of ClearML, the main tuning operation will not be a visible experiment in ClearML, but each individual training run will be.</p>
+
+<p>To get a more detailed visualization and also more control over the optimization process, it is recommended to use the <code>optimize</code> task.</p>
+
+<p><details>
+<summary>Help</summary></p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code>usage:<span class="w"> </span>tune.py<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span><span class="o">[</span>--model<span class="w"> </span>MODEL<span class="o">]</span><span class="w"> </span><span class="o">[</span>--dataset<span class="w"> </span>DATASET<span class="o">]</span><span class="w"> </span><span class="o">[</span>--epochs<span class="w"> </span>EPOCHS<span class="o">]</span><span class="w"> </span><span class="o">[</span>--iterations<span class="w"> </span>ITERATIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>--imgsz<span class="w"> </span>IMGSZ<span class="o">]</span><span class="w"> </span><span class="o">[</span>--optimizer<span class="w"> </span>OPTIMIZER<span class="o">]</span>
+
+Tune<span class="w"> </span>dataset<span class="w"> </span>hyperparameters<span class="w"> </span><span class="k">for</span><span class="w"> </span>a<span class="w"> </span>YOLO<span class="w"> </span>model
+
+options:
+<span class="w">  </span>-h,<span class="w"> </span>--help<span class="w">            </span>show<span class="w"> </span>this<span class="w"> </span><span class="nb">help</span><span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span><span class="nb">exit</span>
+<span class="w">  </span>--model<span class="w"> </span>MODEL<span class="w">         </span>Model<span class="w"> </span>variant<span class="w"> </span>to<span class="w"> </span>use<span class="w"> </span><span class="k">for</span><span class="w"> </span>tuning<span class="w"> </span><span class="o">(</span>default:<span class="w"> </span>None<span class="o">)</span>
+<span class="w">  </span>--dataset<span class="w"> </span>DATASET<span class="w">     </span>Dataset<span class="w"> </span>ID<span class="w"> </span>to<span class="w"> </span>use<span class="w"> </span><span class="k">for</span><span class="w"> </span>tuning<span class="w"> </span><span class="o">(</span>default:<span class="w"> </span>None<span class="o">)</span>
+<span class="w">  </span>--epochs<span class="w"> </span>EPOCHS<span class="w">       </span>Number<span class="w"> </span>of<span class="w"> </span>epochs<span class="w"> </span>to<span class="w"> </span>train<span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="o">(</span>default:<span class="w"> </span><span class="m">30</span><span class="o">)</span>
+<span class="w">  </span>--iterations<span class="w"> </span>ITERATIONS
+<span class="w">                        </span>Number<span class="w"> </span>of<span class="w"> </span>iterations<span class="w"> </span>to<span class="w"> </span>tune<span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="o">(</span>default:<span class="w"> </span><span class="m">100</span><span class="o">)</span>
+<span class="w">  </span>--imgsz<span class="w"> </span>IMGSZ<span class="w">         </span>Image<span class="w"> </span>size<span class="w"> </span><span class="k">for</span><span class="w"> </span>tuning<span class="w"> </span><span class="o">(</span>default:<span class="w"> </span><span class="m">640</span><span class="o">)</span>
+<span class="w">  </span>--optimizer<span class="w"> </span>OPTIMIZER
+<span class="w">                        </span>YOLO<span class="w"> </span>Optimizer<span class="w"> </span><span class="o">(</span>from:<span class="w"> </span>Adam,<span class="w"> </span>AdamW,<span class="w"> </span>NAdam,<span class="w"> </span>RAdam,<span class="w"> </span>RMSProp,<span class="w"> </span>SGD,<span class="w"> </span>auto<span class="o">)</span><span class="w"> </span><span class="o">(</span>default:<span class="w"> </span>AdamW<span class="o">)</span>
+</code></pre>
+</div>
+
+<p></details></p>
+
+<h1 id="known-issues">Known issues</h1>
+
+<ul>
+<li>Sometimes the 'Widget metrics' iteration reporting has issues in ordering and as such, the reported scalars might appear incorrect. This occurs, since sometimes a reported value might have been placed in the wrong iteration _(possibly race condition? upload delay?)_ by ClearML and therefor the scalar plot will show a value dropping. This is generally incorrect, since widget count can only increase with each iteration. The issue originates in the reporting mechanism of ClearML and can't be fixed in this source. The issue is reported here: <a href="https://github.com/allegroai/clearml/issues/1265">ClearML issue 1265</a></li>
 </ul>
 
 <h1 id="license">License</h1>
@@ -280,7 +659,7 @@ An example ClearML configuration can be found in the <a href="https://github.com
 
                         <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">1</span></a><span class="kn">import</span> <span class="nn">os</span>
 </span><span id="L-2"><a href="#L-2"><span class="linenos">2</span></a>
-</span><span id="L-3"><a href="#L-3"><span class="linenos">3</span></a><span class="n">README_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">pardir</span><span class="p">,</span> <span class="s1">&#39;README.md&#39;</span><span class="p">)</span>
+</span><span id="L-3"><a href="#L-3"><span class="linenos">3</span></a><span class="n">README_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;README.md&#39;</span><span class="p">)</span>
 </span><span id="L-4"><a href="#L-4"><span class="linenos">4</span></a><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">README_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
 </span><span id="L-5"><a href="#L-5"><span class="linenos">5</span></a>    <span class="n">README</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 </span><span id="L-6"><a href="#L-6"><span class="linenos">6</span></a>
@@ -292,7 +671,7 @@ An example ClearML configuration can be found in the <a href="https://github.com
                 <section id="README_path">
                     <div class="attr variable">
             <span class="name">README_path</span>        =
-<span class="default_value">&#39;../README.md&#39;</span>
+<span class="default_value">&#39;README.md&#39;</span>
 
         
     </div>
