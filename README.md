@@ -94,7 +94,7 @@ options:
 
 ### Random mode
 
-![Mode Random](assets/Framework-Generic_random-mode.png)
+![Mode Random](docs/assets/Framework-Generic_random-mode.png)
 
 The random mode will create a UI window in the provided dimensions and fill it with randomly chosen widgets. This mode will always start from the full list of implemented types.
 
@@ -127,13 +127,13 @@ You can also view the JSON schema for the design files in the [design_schema.jso
 <details>
 <summary>Statistics in design mode</summary>
 
-![Design statistics](assets/Statistics_design-mode.png)
+![Design statistics](docs/assets/Statistics_design-mode.png)
 
 </details>
 
 #### Local mode
 
-![Mode Design Local](assets/Framework-Generic_design-mode-local.png)
+![Mode Design Local](docs/assets/Framework-Generic_design-mode-local.png)
 
 The local mode expects a folder containing JSON design files.
 
@@ -184,7 +184,7 @@ options:
 
 #### GPT mode
 
-![Mode Design GPT](assets/Framework-Generic_design-mode-gpt.png)
+![Mode Design GPT](docs/assets/Framework-Generic_design-mode-gpt.png)
 
 Since creating design files manually can be time-consuming, the GPT mode allows generating design files using a LLM, namely the ChatGPT API.
 
@@ -220,7 +220,7 @@ options:
 
 The GPT designer reports on the amount of widgets used in a generated design _(per widget class)_ for each iteration.
 
-![GPT Designer iterations](assets/Statistics_design-mode-gpt.png)
+![GPT Designer iterations](docs/assets/Statistics_design-mode-gpt.png)
 
 </details>
 
@@ -442,7 +442,7 @@ combinations = [(t, c) for t in themes for c in topics]
 
 ## Train
 
-![Training](assets/Framework-Generic_model-training.png)
+![Training](docs/assets/Framework-Generic_model-training.png)
 
 The training task will train the YOLOv8 model on the provided dataset ID from ClearML.
 
@@ -472,7 +472,7 @@ options:
 
 ## Optimize
 
-![Task optimization](assets/Framework-Generic_task-optimization.png)
+![Task optimization](docs/assets/Framework-Generic_task-optimization.png)
 
 The optimization task will perform hyperparameter optimization on the paramaters of a provided task ID from ClearML using [Optuna](https://optuna.org/).
 
@@ -510,7 +510,7 @@ options:
 
 ## Tune
 
-![YOLO Tuning](assets/Framework-Generic_yolo-tuning.png)
+![YOLO Tuning](docs/assets/Framework-Generic_yolo-tuning.png)
 
 The tune task will perform hyperparameter optimization on the provided dataset ID from ClearML using the `tune` function of the [ultralytics engine](https://docs.ultralytics.com/reference/engine/tuner/).
 
