@@ -1,6 +1,8 @@
 # LVGL UI Detector
 Source code for LVGL UI detector model with ClearML tasks for generating, training and optimization.
 
+🗎 [Documentation](https://hackxit.github.io/ui-detector/)
+
 # Pre-requisites & Installation
 
 This project uses [Poetry](https://python-poetry.org/) for managing dependencies.
