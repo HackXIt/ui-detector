@@ -19,6 +19,7 @@ optuna = "^3.6.1"
 clearml = "^1.15.1"
 openai = "^1.23.6"
 plotly = "^5.22.0"
+pdoc = "^14.5.0"
 
 [tool.poetry.group.dev.dependencies]
 clearml-agent = "^1.8.0"
